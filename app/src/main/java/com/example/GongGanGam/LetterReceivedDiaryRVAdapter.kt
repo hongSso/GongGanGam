@@ -5,17 +5,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.GongGanGam.databinding.ItemReceivedLetterBinding
 
-class LetterReceivcedDiaryRVAdapter() :
-    RecyclerView.Adapter<LetterReceivcedDiaryRVAdapter.ViewHolder>(){
+class LetterReceivedDiaryRVAdapter(private val diaries : ArrayList<Diary>) :
+    RecyclerView.Adapter<LetterReceivedDiaryRVAdapter.ViewHolder>(){
 
-    private val diaries = ArrayList<Diary>()
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         val binding: ItemReceivedLetterBinding = ItemReceivedLetterBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
         return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: LetterReceivcedDiaryRVAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: LetterReceivedDiaryRVAdapter.ViewHolder, position: Int) {
         holder.bind(diaries[position])
 
     }

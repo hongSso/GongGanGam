@@ -5,6 +5,8 @@
     android:padding="16dp"
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
     android:background="@drawable/letter_item_background"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -14,6 +16,7 @@
         android:layout_height="24dp"
         app:cardCornerRadius="30dp"
         android:backgroundTint="@color/white"
+        android:background="@drawable/profile_image_background"
         app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintEnd_toStartOf="@id/item_received_letter_title"
         app:layout_constraintStart_toStartOf="parent"
