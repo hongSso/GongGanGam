@@ -1,5 +1,6 @@
 package com.example.GongGanGam
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -37,6 +38,18 @@ class ReceivedDiaryFragment : Fragment() {
         binding.receivedDiaryRv.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         val letterReceivedDiaryRVAdapter = LetterReceivedDiaryRVAdapter(diaries)
         binding.receivedDiaryRv.adapter = letterReceivedDiaryRVAdapter
+
+        letterReceivedDiaryRVAdapter.setOnItemClickListener(object: LetterReceivedDiaryRVAdapter.OnItemClickListener{
+            override fun onItemClick(diary: Diary) {
+                goToAcceptDiary() // 받은 일기 답장 액티비티로 전환
+            }
+        })
+
+    }
+
+    private fun goToAcceptDiary() {
+        val intent = Intent(activity, AcceptDiaryActivity::class.java)
+        startActivity(intent)
     }
 
 }
