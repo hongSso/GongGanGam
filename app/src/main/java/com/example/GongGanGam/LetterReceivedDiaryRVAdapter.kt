@@ -38,7 +38,7 @@ class LetterReceivedDiaryRVAdapter(private val diaries : ArrayList<Diary>) :
     inner class ViewHolder(val binding: ItemReceivedLetterBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(diary: Diary) {
-            binding.itemReceivedLetterTitle.text = diary.title
+            binding.itemReceivedLetterUserName.text = diary.title
             binding.itemReceivedLetterDate.text = diary.date
             binding.itemReceivedLetterContent.text = diary.content
         }
