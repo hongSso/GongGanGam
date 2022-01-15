@@ -1,12 +1,23 @@
 package com.example.GongGanGam
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.GongGanGam.databinding.ItemReceivedLetterBinding
 
 class LetterReceivedDiaryRVAdapter(private val diaries : ArrayList<Diary>) :
     RecyclerView.Adapter<LetterReceivedDiaryRVAdapter.ViewHolder>(){
+
+    interface OnItemClickListener{
+        fun onItemClick(diary: Diary)
+    }
+
+    private lateinit var onItemClickListener: OnItemClickListener
+
+    fun setOnItemClickListener(itemClickListener: OnItemClickListener){
+        onItemClickListener = itemClickListener
+    }
 
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
@@ -17,6 +28,9 @@ class LetterReceivedDiaryRVAdapter(private val diaries : ArrayList<Diary>) :
     override fun onBindViewHolder(holder: LetterReceivedDiaryRVAdapter.ViewHolder, position: Int) {
         holder.bind(diaries[position])
 
+        holder.binding.itemReceivedLetterCl.setOnClickListener {
+            onItemClickListener.onItemClick(diaries[position])
+        }
     }
 
     override fun getItemCount(): Int = diaries.size
@@ -27,6 +41,10 @@ class LetterReceivedDiaryRVAdapter(private val diaries : ArrayList<Diary>) :
             binding.itemReceivedLetterTitle.text = diary.title
             binding.itemReceivedLetterDate.text = diary.date
             binding.itemReceivedLetterContent.text = diary.content
+        }
+
+        init {
+
         }
     }
 }
