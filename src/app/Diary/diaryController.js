@@ -17,10 +17,34 @@ exports.getDiarys = async function (req, res) {
     const year = req.query.year;
     const month = req.query.month;
 
-    if (!year) res.send(errResponse(baseResponse.DIARY_YEAR_EMPTY));
-    if (!month) res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY))
+    if (!year) return res.send(errResponse(baseResponse.DIARY_YEAR_EMPTY));
+    if (!month) return res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY))
 
     const monthDiaryResult = await diaryProvider.retrieveMonthList(year, month);
     return res.send(response(baseResponse.SUCCESS, monthDiaryResult));
+
+};
+
+
+/**
+ * API No. 16
+ * API Name : 그날의 다이어리 조회 API
+ * [GET] /app/diary/detail?year=&month=&day=
+ */
+exports.getDiaryDetail = async function (req, res) {
+
+    /**
+     * Query String: email
+     */
+    const year = req.query.year;
+    const month = req.query.month;
+    const day = req.query.day;
+
+    if (!year) return res.send(errResponse(baseResponse.DIARY_YEAR_EMPTY));
+    if (!month) return res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY));
+    if (!day) return res.send(errResponse(baseResponse.DIARY_DAY_EMPTY));
+
+    const diaryResult = await diaryProvider.retrieveDiary(year, month, day);
+    return res.send(response(baseResponse.SUCCESS, diaryResult));
 
 };

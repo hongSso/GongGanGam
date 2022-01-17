@@ -15,3 +15,17 @@ exports.retrieveMonthList = async function (year, month) {
 
     return monthList;
 };
+
+exports.retrieveDiary = async function (year, month, day) {
+    const params = [year, month, day];
+    const connection = await pool.getConnection(async (conn) => conn);
+    const diary = await diaryDao.selectDiary(connection, params);
+    console.log(diary[0].diaryIdx)
+    const diaryAnswer = await diaryDao.selectDiaryAnswer(connection, diary[0].diaryIdx);
+    console.log(diaryAnswer)
+    diary[0].answer = diaryAnswer[0];
+
+    connection.release();
+
+    return diary;
+};

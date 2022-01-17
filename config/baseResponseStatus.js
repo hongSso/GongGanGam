@@ -50,7 +50,8 @@ module.exports = {
 
     // 5000번대 수이
     DIARY_YEAR_EMPTY : { "isSuccess": false, "code": 5001, "message": "연도를 입력해주세요."},
-    DIARY_MONTH_EMPTY : { "isSuccess": false, "code": 5002, "message": "월을 입력해주세요."},
+    DIARY_MONTH_EMPTY : { "isSuccess": false, "code": 5002, "message": "달을 입력해주세요."},
+    DIARY_DAY_EMPTY : { "isSuccess": false, "code": 5003, "message": "날짜를 입력해주세요."},
 
     // 6000번 소연
 
