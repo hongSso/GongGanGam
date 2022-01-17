@@ -17,7 +17,10 @@ exports.getDiarys = async function (req, res) {
     const year = req.query.year;
     const month = req.query.month;
 
-    const monthDiaryResult = await diaryProvider.retrieveMonthList();
+    if (!year) res.send(errResponse(baseResponse.DIARY_YEAR_EMPTY));
+    if (!month) res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY))
+
+    const monthDiaryResult = await diaryProvider.retrieveMonthList(year, month);
     return res.send(response(baseResponse.SUCCESS, monthDiaryResult));
 
 };
