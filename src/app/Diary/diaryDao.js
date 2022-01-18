@@ -48,6 +48,18 @@ async function selectShareList(connection) {
     return diaryInfo;
 }
 
+// 공유된 다이어리 가져오기
+async function selectShareDiary(connection, diaryIdx) {
+    const selectDeliveryQuery = `
+        select Diary.userIdx, nickname as userNickname, profImg as userProfImg, diaryIdx,
+               date_format(diaryDate, '%Y년 %c월 %e일') as diaryDate, contents as diaryContent, imgUrl as diaryImg
+        from Diary join User on Diary.userIdx=User.userIdx
+        where diaryIdx=?;
+                `;
+    const [diaryInfo] = await connection.query(selectDeliveryQuery, diaryIdx);
+    return diaryInfo;
+}
+
 module.exports = {
-    selectMonthDiary, selectDiary, selectDiaryAnswer, selectShareList
+    selectMonthDiary, selectDiary, selectDiaryAnswer, selectShareList, selectShareDiary
 };

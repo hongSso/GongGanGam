@@ -18,6 +18,20 @@ exports.getSharedDiarys = async function (req, res) {
 };
 
 /**
+ * API No. 14
+ * API Name : 받은 일기 조회 API
+ * [GET] /app/diarys/share/:diaryIdx
+ */
+exports.getSharedDiarys = async function (req, res) {
+
+    const diaryIdx = req.params.diaryIdx;
+
+    const sharedDiaryResult = await diaryProvider.retrieveSharedDiary(diaryIdx);
+    return res.send(response(baseResponse.SUCCESS, sharedDiaryResult));
+
+};
+
+/**
  * API No. 16
  * API Name : 나의 다이어리 조회(캘린더 - 이모티콘) API
  * [GET] /app/diary?year=&month=
