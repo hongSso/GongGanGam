@@ -29,3 +29,13 @@ exports.retrieveDiary = async function (year, month, day) {
 
     return diary;
 };
+
+exports.retrieveSharedDiaryList = async function () {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const shareList = await diaryDao.selectShareList(connection);
+    const shareResult = {'diarys' : shareList}
+
+    connection.release();
+
+    return shareResult;
+};

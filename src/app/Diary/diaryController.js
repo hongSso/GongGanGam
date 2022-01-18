@@ -4,6 +4,19 @@ const diaryService = require("../../app/Diary/diaryService");
 const baseResponse = require("../../../config/baseResponseStatus");
 const {response, errResponse} = require("../../../config/response");
 
+
+/**
+ * API No. 12
+ * API Name : 받은 일기 리스트 조회 API
+ * [GET] /app/diarys/share
+ */
+exports.getSharedDiarys = async function (req, res) {
+
+    const sharedDiaryResult = await diaryProvider.retrieveSharedDiaryList();
+    return res.send(response(baseResponse.SUCCESS, sharedDiaryResult));
+
+};
+
 /**
  * API No. 16
  * API Name : 나의 다이어리 조회(캘린더 - 이모티콘) API
@@ -12,7 +25,7 @@ const {response, errResponse} = require("../../../config/response");
 exports.getDiarys = async function (req, res) {
 
     /**
-     * Query String: email
+     * Query String: year, month
      */
     const year = req.query.year;
     const month = req.query.month;
@@ -34,7 +47,7 @@ exports.getDiarys = async function (req, res) {
 exports.getDiaryDetail = async function (req, res) {
 
     /**
-     * Query String: email
+     * Query String: year, month, day
      */
     const year = req.query.year;
     const month = req.query.month;
