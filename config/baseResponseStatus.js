@@ -52,6 +52,10 @@ module.exports = {
     DIARY_YEAR_EMPTY : { "isSuccess": false, "code": 5001, "message": "연도를 입력해주세요."},
     DIARY_MONTH_EMPTY : { "isSuccess": false, "code": 5002, "message": "달을 입력해주세요."},
     DIARY_DAY_EMPTY : { "isSuccess": false, "code": 5003, "message": "날짜를 입력해주세요."},
+    DIARY_DIARYIDX_EMPTY : { "isSuccess": false, "code": 5004, "message": "diaryIdx를 입력해주세요."},
+    DIARY_DIARYIDX_NOT_EXIST : { "isSuccess": false, "code": 5005, "message": "존재하지 않는 다이어리입니다."},
+    USER_NOT_EXIST : { "isSuccess": false, "code": 5006, "message": "존재하지 않는 유저입니다."},
+    DIARY_USER_INVALID : { "isSuccess": false, "code": 5007, "message": "수정할 권한이 없는 유저입니다."},
 
     // 6000번 소연
 

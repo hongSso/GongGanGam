@@ -14,5 +14,11 @@ module.exports = function(app){
     // 17. 그날의 다이어리 조회 API
     app.get('/app/diarys/detail', diary.getDiaryDetail);
 
+    // 18. 다이어리 쓰기 & 공유하기 API
+    app.post('/app/diarys', diary.postDiary);
+
+    // 20. 다이어리 수정하기 API
+    app.patch('/app/diarys/:diaryIdx/status', diary.patchDiaryStatus);
+
 };
 

@@ -4,7 +4,7 @@ async function selectMonthDiary(connection, params) {
     const selectMonthDiaryQuery = `
         select date_format(diaryDate, '%e') as day, emoji
         from Diary
-        where userIdx=1 and year(diaryDate) - ? = 0 and month(diaryDate) - ? =0
+        where userIdx=1 and year(diaryDate) - ? = 0 and month(diaryDate) - ? =0  and status = 'ACTIVE'
         order by diaryDate;
     `;
     const [monthRows] = await connection.query(selectMonthDiaryQuery, params);
@@ -17,7 +17,7 @@ async function selectDiary(connection, params) {
         select diaryIdx, emoji, date_format(updatedAt, '%Y년 %c월 %e일') as diaryDate, contents, imgUrl as image
         from Diary
         where userIdx=1 and year(diaryDate) - ? = 0 and month(diaryDate) - ? =0
-          and day(diaryDate) - ? = 0;
+          and day(diaryDate) - ? = 0  and status = 'ACTIVE';
                 `;
     const [diaryInfo] = await connection.query(selectDeliveryQuery, params);
     return diaryInfo;
@@ -60,6 +60,54 @@ async function selectShareDiary(connection, diaryIdx) {
     return diaryInfo;
 }
 
+// 유저 생성
+async function insertDiary(connection, insertDiaryParams) {
+    const insertDiaryQuery = `
+        INSERT INTO Diary(userIdx, diaryDate, emoji, contents, shareAgree)
+        VALUES (?, ?, ?, ?, ?);
+    `;
+    const insertHeartRow = await connection.query(
+        insertDiaryQuery,
+        insertDiaryParams
+    );
+
+    return insertHeartRow;
+}
+
+// 다이어리 status를 F로 수정하기
+async function updateDiaryStatus(connection, diaryIdx) {
+    const params = ['INACTIVE', diaryIdx];
+    const updateReviewQuery = `
+        UPDATE Diary 
+        SET status = ?
+        WHERE diaryIdx = ?;`;
+    const updateUserRow = await connection.query(updateReviewQuery, params);
+    return updateUserRow[0];
+}
+
+// 존재하는 사용자인지 확인
+async function checkUserExists(connection, userIdx) {
+    const selectUserQuery = `
+        select userIdx
+        from User
+        where userIdx=?;
+                `;
+    const [diaryInfo] = await connection.query(selectUserQuery, userIdx);
+    return diaryInfo;
+}
+
+// 존재하는 다이어리인지 확인
+async function checkDiaryExists(connection, diaryIdx) {
+    const selectUserQuery = `
+        select diaryIdx, userIdx
+        from Diary
+        where diaryIdx=?;
+                `;
+    const [diaryInfo] = await connection.query(selectUserQuery, diaryIdx);
+    return diaryInfo;
+}
+
 module.exports = {
-    selectMonthDiary, selectDiary, selectDiaryAnswer, selectShareList, selectShareDiary
+    selectMonthDiary, selectDiary, selectDiaryAnswer, selectShareList, selectShareDiary,
+    insertDiary, updateDiaryStatus, checkUserExists, checkDiaryExists
 };
