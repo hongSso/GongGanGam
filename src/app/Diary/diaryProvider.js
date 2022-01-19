@@ -48,3 +48,12 @@ exports.retrieveSharedDiary = async function (diaryIdx) {
 
     return shareList;
 };
+
+exports.retrieveAnswerList = async function (userIdx) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const answerList = await diaryDao.selectAnswer(connection, userIdx);
+
+    connection.release();
+
+    return answerList;
+};

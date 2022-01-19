@@ -18,6 +18,19 @@ exports.getSharedDiarys = async function (req, res) {
 };
 
 /**
+ * API No. 13
+ * API Name : 받은 답장 리스트 조회 API
+ * [GET] /app/dairys/answer
+ */
+exports.getAnswerList = async function (req, res) {
+    const userIdx = 1;
+
+    const answerResult = await diaryProvider.retrieveAnswerList(userIdx);
+    return res.send(response(baseResponse.SUCCESS, answerResult));
+
+};
+
+/**
  * API No. 14
  * API Name : 받은 일기 조회 API
  * [GET] /app/diarys/share/:diaryIdx

@@ -60,6 +60,19 @@ async function selectShareDiary(connection, diaryIdx) {
     return diaryInfo;
 }
 
+// 받은 답장 리스트 가져오기
+async function selectAnswer(connection, userIdx) {
+    const selectAnswerQuery = `
+        select answerIdx, User.userIdx, nickname as userNickname, profImg as userProfImg, answerContents,
+               date_format(Answer.updatedAt, '%y.%m.%d') as answerDate, isRead
+        from Answer join Diary on Diary.diaryIdx=Answer.diaryIdx
+                    join User on Diary.userIdx = User.userIdx
+        where answerUserIdx=? order by Answer.updatedAt;
+                `;
+    const [diaryInfo] = await connection.query(selectAnswerQuery, userIdx);
+    return diaryInfo;
+}
+
 // 유저 생성
 async function insertDiary(connection, insertDiaryParams) {
     const insertDiaryQuery = `
@@ -109,5 +122,5 @@ async function checkDiaryExists(connection, diaryIdx) {
 
 module.exports = {
     selectMonthDiary, selectDiary, selectDiaryAnswer, selectShareList, selectShareDiary,
-    insertDiary, updateDiaryStatus, checkUserExists, checkDiaryExists
+    insertDiary, updateDiaryStatus, checkUserExists, checkDiaryExists, selectAnswer,
 };
