@@ -73,6 +73,43 @@ async function selectAnswer(connection, userIdx) {
     return diaryInfo;
 }
 
+// 받은 답장 가져오기
+async function selectAnswerDetail(connection, params) {
+    const selectDeliveryQuery = `
+        select answerIdx, User.userIdx, nickname as userNickname, profImg as userProfImg,
+               date_format(Answer.updatedAt, '%Y년 %c월 %e일') as answerDate, answerContents
+        from Answer join Diary on Diary.diaryIdx=Answer.diaryIdx
+                    join User on Diary.userIdx = User.userIdx
+        where Answer.diaryIdx=? and answerUserIdx=? and Answer.status='ACTIVE';
+                `;
+    const [diaryInfo] = await connection.query(selectDeliveryQuery, params);
+    return diaryInfo;
+}
+
+// 받은 답장 페이지에 다이어리 내용 가져오기
+async function selectDiaryDetail(connection, diaryIdx) {
+    const selectDeliveryQuery = `
+        select diaryIdx, emoji, date_format(diaryDate, '%Y년 %c월 %e일') as diaryDate, contents as diaryContent
+        from Diary
+        where diaryIdx = ?;
+                `;
+    const [diaryInfo] = await connection.query(selectDeliveryQuery, diaryIdx);
+    return diaryInfo;
+}
+
+
+// 랜덤의 유저 가져오기
+async function selectRandUser(connection, userIdx) {
+    const selectDeliveryQuery = `
+        select userIdx
+        from User
+        where userIdx != ?
+        order by rand() limit 1;
+                `;
+    const [diaryInfo] = await connection.query(selectDeliveryQuery, userIdx);
+    return diaryInfo;
+}
+
 // 유저 생성
 async function insertDiary(connection, insertDiaryParams) {
     const insertDiaryQuery = `
@@ -87,12 +124,36 @@ async function insertDiary(connection, insertDiaryParams) {
     return insertHeartRow;
 }
 
+// 답장하기
+async function insertAnswer(connection, insertAnswerParams) {
+    const insertAnswerQuery = `
+        INSERT INTO Answer(diaryIdx, answerUserIdx, answerContents)
+        VALUES (?, ?, ?);
+    `;
+    const insertAnswerRow = await connection.query(
+        insertAnswerQuery,
+        insertAnswerParams
+    );
+
+    return insertAnswerRow;
+}
+
 // 다이어리 status를 F로 수정하기
 async function updateDiaryStatus(connection, diaryIdx) {
     const params = ['INACTIVE', diaryIdx];
     const updateReviewQuery = `
         UPDATE Diary 
         SET status = ?
+        WHERE diaryIdx = ?;`;
+    const updateUserRow = await connection.query(updateReviewQuery, params);
+    return updateUserRow[0];
+}
+
+// 다이어리 수정하기
+async function updateDiary(connection, params) {
+    const updateReviewQuery = `
+        UPDATE Diary 
+        SET diaryDate = ?, emoji = ?, contents = ?, shareAgree = ?, status = ?
         WHERE diaryIdx = ?;`;
     const updateUserRow = await connection.query(updateReviewQuery, params);
     return updateUserRow[0];
@@ -123,4 +184,5 @@ async function checkDiaryExists(connection, diaryIdx) {
 module.exports = {
     selectMonthDiary, selectDiary, selectDiaryAnswer, selectShareList, selectShareDiary,
     insertDiary, updateDiaryStatus, checkUserExists, checkDiaryExists, selectAnswer,
+    selectDiaryDetail, selectAnswerDetail, insertAnswer, selectRandUser, updateDiary
 };

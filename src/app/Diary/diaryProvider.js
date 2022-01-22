@@ -20,10 +20,13 @@ exports.retrieveDiary = async function (year, month, day) {
     const params = [year, month, day];
     const connection = await pool.getConnection(async (conn) => conn);
     const diary = await diaryDao.selectDiary(connection, params);
-    console.log(diary[0].diaryIdx)
-    const diaryAnswer = await diaryDao.selectDiaryAnswer(connection, diary[0].diaryIdx);
-    console.log(diaryAnswer)
-    diary[0].answer = diaryAnswer[0];
+
+    if (!diary) {
+        console.log(diary)
+        const diaryAnswer = await diaryDao.selectDiaryAnswer(connection, diary[0].diaryIdx);
+        console.log(diaryAnswer)
+        diary[0].answer = diaryAnswer[0];
+    }
 
     connection.release();
 
@@ -56,4 +59,17 @@ exports.retrieveAnswerList = async function (userIdx) {
     connection.release();
 
     return answerList;
+};
+
+exports.retrieveAnswer = async function (diaryIdx, userIdx) {
+    const connection = await pool.getConnection(async (conn) => conn);
+
+    const diary = await diaryDao.selectDiaryDetail(diaryIdx);
+    const params = [diaryIdx, userIdx];
+    const answer = await diaryDao.selectAnswerDetail(connection, params);
+    const result = {'diary' : diary, 'answer' : answer};
+
+    connection.release();
+
+    return result;
 };

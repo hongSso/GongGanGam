@@ -11,6 +11,9 @@ module.exports = function(app){
     // 14. 받은 일기 조회 API
     app.get('/app/diarys/share/:diaryIdx', diary.getSharedDiarys);
 
+    // 15. 받은 답장 조회 API
+    app.get('/app/diarys/answer/:diaryIdx', diary.getAnswer);
+
     // 16. 나의 다이어리 조회(캘린더 - 이모티콘) API
     app.get('/app/diarys', diary.getDiarys);
 
@@ -20,8 +23,14 @@ module.exports = function(app){
     // 18. 다이어리 쓰기 & 공유하기 API
     app.post('/app/diarys', diary.postDiary);
 
-    // 20. 다이어리 수정하기 API
+    // 19. 답장하기 API
+    app.post('/app/diarys/answer', diary.postAnswer);
+
+    // 20. 다이어리 삭제하기 API
     app.patch('/app/diarys/:diaryIdx/status', diary.patchDiaryStatus);
+
+    // 21. 다이어리 수정하기 API
+    app.patch('/app/diarys/:diaryIdx', diary.patchDiary);
 
 };
 

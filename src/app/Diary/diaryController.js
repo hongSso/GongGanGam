@@ -4,6 +4,8 @@ const diaryService = require("../../app/Diary/diaryService");
 const baseResponse = require("../../../config/baseResponseStatus");
 const {response, errResponse} = require("../../../config/response");
 
+const formidable = require('formidable')
+const fs = require('fs');
 
 /**
  * API No. 12
@@ -20,7 +22,7 @@ exports.getSharedDiarys = async function (req, res) {
 /**
  * API No. 13
  * API Name : 받은 답장 리스트 조회 API
- * [GET] /app/dairys/answer
+ * [GET] /app/diarys/answer
  */
 exports.getAnswerList = async function (req, res) {
     const userIdx = 1;
@@ -48,6 +50,24 @@ exports.getSharedDiarys = async function (req, res) {
 };
 
 /**
+ * API No. 15
+ * API Name : 받은 답장 조회 API
+ * [GET] /app/diarys/answer/:diaryIdx
+ */
+exports.getAnswer = async function (req, res) {
+
+    const diaryIdx = req.params.diaryIdx;
+    const userIdx = 1;
+
+    if (!diaryIdx) return res.send(errResponse(baseResponse.DIARY_DIARYIDX_EMPTY));
+
+    const answerResult = await diaryProvider.retrieveAnswer(diaryIdx, userIdx);
+    if (answerResult.length<1) return res.send(errResponse(baseResponse.DIARY_DIARYIDX_NOT_EXIST));
+    return res.send(response(baseResponse.SUCCESS, answerResult));
+
+};
+
+/**
  * API No. 16
  * API Name : 나의 다이어리 조회(캘린더 - 이모티콘) API
  * [GET] /app/diary?year=&month=
@@ -70,7 +90,7 @@ exports.getDiarys = async function (req, res) {
 
 
 /**
- * API No. 16
+ * API No. 17
  * API Name : 그날의 다이어리 조회 API
  * [GET] /app/diary/detail?year=&month=&day=
  */
@@ -104,8 +124,16 @@ exports.postDiary = async function (req, res) {
      */
 
     const {emoji, year, month, day, content, shareAgree} = req.body;
+
     const userIdx = 1;
+
+    if (!year) return res.send(errResponse(baseResponse.DIARY_YEAR_EMPTY));
+    if (!month) return res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY));
+    if (!day) return res.send(errResponse(baseResponse.DIARY_DAY_EMPTY));
+
     let date = year;
+    //if (!req.files) console.log('no file');
+    //else console.log(req.files.uploadFile);
 
     if (month < 10) {
         date = date + '-0' +month;
@@ -124,7 +152,26 @@ exports.postDiary = async function (req, res) {
     // Service에서 다이어리 만들고 shareAgree가 T면 DiaryShare에 추가해주기 (Transaction 사용해서)
     const postdiaryResponse = await diaryService.createDiary(userIdx, date, emoji, content, shareAgree);
     return res.send(postdiaryResponse);
-    //return res.send(response(baseResponse.SUCCESS));
+
+};
+
+/**
+ * API No. 10
+ * API Name : 다이어리 답장하기 API
+ * [POST] /app/diarys/answer
+ */
+exports.postAnswer = async function (req, res) {
+
+    /**
+     * Body: content, diaryIdx
+     */
+
+    const {content, diaryIdx} = req.body;
+
+    const userIdx = 1;
+
+    const postAnswerResponse = await diaryService.createAnswer(userIdx, diaryIdx, content);
+    return res.send(postAnswerResponse);
 
 };
 
@@ -143,6 +190,42 @@ exports.patchDiaryStatus = async function (req, res) {
     const userIdx = 1;
 
     const patchdiaryResponse = await diaryService.updateDiaryStatus(userIdx, diaryIdx);
+    return res.send(patchdiaryResponse);
+
+};
+
+/**
+ * API No. 21
+ * API Name : 다이어리 수정하기 API
+ * [POST] /app/diarys/:diaryIdx
+ */
+exports.patchDiary = async function (req, res) {
+
+    /**
+     * Body: emoji, date, content, shareAgree
+     */
+
+    const diaryIdx = req.params.diaryIdx;
+    const {emoji, year, month, day, content, shareAgree} = req.body;
+
+    if (!year) return res.send(errResponse(baseResponse.DIARY_YEAR_EMPTY));
+    if (!month) return res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY));
+    if (!day) return res.send(errResponse(baseResponse.DIARY_DAY_EMPTY));
+
+    let date = year;
+
+    if (month < 10) {
+        date = date + '-0' +month;
+        if (day < 10) date = date + '-0' + day;
+        else date = date + '-' + day;
+    } else {
+        date = date + '-' + month;
+        if (day < 10) date = date + '-0' + day;
+        else date = date + '-' + day;
+    }
+    const userIdx = 1;
+
+    const patchdiaryResponse = await diaryService.updateDiary(diaryIdx, userIdx, date, emoji, content, shareAgree);
     return res.send(patchdiaryResponse);
 
 };
