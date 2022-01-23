@@ -98,7 +98,7 @@ exports.patchUsers = async function (req, res) {
     const age = req.body.age;
     const gender = req.body.gender;
 
-    // JWT는 이 후 주차에 다룰 내용
+
     if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
     const editUserInfo = await userService.editUser(nickname, birthYear, gender,userIdx);
     return res.send(editUserInfo);
@@ -118,7 +118,6 @@ exports.patchUsersStatus = async function (req, res) {
     const userIdx = req.params.userIdx;
     const status = req.body.status;
 
-    // JWT는 이 후 주차에 다룰 내용
     if (!status) return res.send(errResponse(baseResponse.USER_STATUS_EMPTY));
     const editUserStatus = await userService.editUserStatus(userIdx,status);
     return res.send(editUserStatus);
@@ -160,7 +159,6 @@ exports.patchPushAnswer = async function (req, res) {
     const answerPush = req.body.answerPush;
 
 
-    // JWT는 이 후 주차에 다룰 내용
     if (!answerPush) return res.send(errResponse(baseResponse.USER_ANSWER_PUSH_EMPTY));
 
     const editAnswerPush = await userService.editDiaryPush(userIdx, answerPush);
@@ -182,7 +180,6 @@ exports.patchPushChat = async function (req, res) {
     const answerPush = req.body.chatPush;
 
 
-    // JWT는 이 후 주차에 다룰 내용
     if (!chatPush) return res.send(errResponse(baseResponse.USER_CHAT_PUSH_EMPTY));
 
     const editChatPush = await userService.editChatPush(userIdx, chatPush);
