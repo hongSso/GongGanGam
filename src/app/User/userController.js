@@ -129,7 +129,7 @@ exports.patchUsersStatus = async function (req, res) {
  * API No. 9
  * API Name : 받은 일기 알림 설정
  * [PATCH] /app/users/:userIdx/push/diary
- * path variable : push, diary
+ * path variable : userIdx, diary
  * body : diaryPush
  */
 exports.patchDiaryPush = async function (req, res) {
@@ -147,7 +147,48 @@ exports.patchDiaryPush = async function (req, res) {
 
 };
 
+/** API No. 10
+* API Name : 받은 답장 알림 설정
+* [PATCH] /app/users/:userIdx/push/answer
+* path variable : userIdx, answer
+* body : diaryPush
+*/
+exports.patchPushAnswer = async function (req, res) {
 
+
+    const userIdx = req.params.userIdx;
+    const answerPush = req.body.answerPush;
+
+
+    // JWT는 이 후 주차에 다룰 내용
+    if (!answerPush) return res.send(errResponse(baseResponse.USER_ANSWER_PUSH_EMPTY));
+
+    const editAnswerPush = await userService.editDiaryPush(userIdx, answerPush);
+    return res.send(editAnswerPush);
+
+};
+
+/** API No. 11
+ * API Name : 받은 채팅 알림 설정
+ * [PATCH] /app/users/:userIdx/push/chat
+ * path variable : userIdx, chat
+ * body : chatPush
+ */
+
+exports.patchPushChat = async function (req, res) {
+
+
+    const userIdx = req.params.userIdx;
+    const answerPush = req.body.chatPush;
+
+
+    // JWT는 이 후 주차에 다룰 내용
+    if (!chatPush) return res.send(errResponse(baseResponse.USER_CHAT_PUSH_EMPTY));
+
+    const editChatPush = await userService.editChatPush(userIdx, chatPush);
+    return res.send(editChatPush);
+
+};
 
 
 
