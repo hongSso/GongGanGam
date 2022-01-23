@@ -4,8 +4,6 @@ const userService = require("../../app/User/userService");
 const baseResponse = require("../../../config/baseResponseStatus");
 const {response, errResponse} = require("../../../config/response");
 
-const regexEmail = require("regex-email");
-
 /**
  * API No. 0
  * API Name : 테스트 API
@@ -16,34 +14,32 @@ exports.getTest = async function (req, res) {
 }
 
 /**
- * API No. 1
+ * API No. 4
  * API Name : 유저 생성 (회원가입) API
  * [POST] /app/users
  */
 exports.postUsers = async function (req, res) {
 
     /**
-     * Body: email, password, nickname
+     * Body: nickname, birthYear, gender
      */
-    const {email, password, nickname} = req.body;
+    const {nickname, birthYear, gender} = req.body;
 
     // 빈 값 체크
-    if (!email)
-        return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
+    if (!nickname)
+        return res.send(response(baseResponse.USER_USERID_EMPTY));
 
-    // 길이 체크
-    if (email.length > 30)
-        return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH));
+    if (!birthYear)
+        return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
 
-    // 형식 체크 (by 정규표현식)
-    if (!regexEmail.test(email))
-        return res.send(response(baseResponse.SIGNUP_EMAIL_ERROR_TYPE));
+    if (!gender)
+        return res.send(response(baseResponse.USER_GENDER_EMPTY));
 
     // createUser 함수 실행을 통한 결과 값을 signUpResponse에 저장
     const signUpResponse = await userService.createUser(
-        email,
-        password,
-        nickname
+        nickname,
+        birthYear,
+        gender
     );
 
     // signUpResponse 값을 json으로 전달
@@ -51,42 +47,53 @@ exports.postUsers = async function (req, res) {
 };
 
 /**
- * API No. 2
- * API Name : 유저 조회 API (+ 이메일로 검색 조회)
- * [GET] /app/users
+ * API No. 5
+ * API Name : 회원 정보 수정 API + JWT + Validation
+ * [PATCH] /app/users/:userIdx
+ * body : nickname, birthYear, age, gender
  */
-exports.getUsers = async function (req, res) {
+exports.patchUsers = async function (req, res) {
 
-    /**
-     * Query String: email
-     */
-    const email = req.query.email;
+    // jwt - userIdx, path variable :userId
 
+    const userIdFromJWT = req.verifiedToken.userId
 
-        // 유저 전체 조회
-        const userListResult = await userProvider.retrieveUserList();
-        // SUCCESS : { "isSuccess": true, "code": 1000, "message":"성공" }, 메세지와 함께 userListResult 호출
-        return res.send(response(baseResponse.SUCCESS, userListResult));
+    const userIdx = req.params.userId;
+    const nickname = req.body.nickname;
+    const birthYear = req.body.birthYear;
+    const age = req.body.age;
+    const gender = req.body.gender;
 
+    // JWT는 이 후 주차에 다룰 내용
+    if (userIdFromJWT != userIdx) {
+        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+    } else {
+        if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
+
+        const editUserInfo = await userService.editUser(nickname, birthYear, age, gender);
+        return res.send(editUserInfo);
+    }
 };
 
+
 /**
- * API No. 3
+ * API No. 6
  * API Name : 특정 유저 조회 API
- * [GET] /app/users/{userId}
+ * [GET] /app/users/:userIdx
  */
 exports.getUserById = async function (req, res) {
 
     /**
-     * Path Variable: userId
+     * Path Variable: userIdx
      */
-    const userId = req.params.userId;
+    const userIdx = req.params.userIdx;
+    const userIdFromJWT = req.verifiedToken.userId
     // errResponse 전달
-    if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
+    if (!userIdx) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
 
     // userId를 통한 유저 검색 함수 호출 및 결과 저장
-    const userByUserId = await userProvider.retrieveUser(userId);
-    return res.send(response(baseResponse.SUCCESS, userByUserId));
+    const userByUserIdx = await userProvider.retrieveUser(userIdx);
+    return res.send(response(baseResponse.SUCCESS, userByUserIdx));
 };
 
 
@@ -107,32 +114,7 @@ exports.login = async function (req, res) {
 };
 
 
-/**
- * API No. 5
- * API Name : 회원 정보 수정 API + JWT + Validation
- * [PATCH] /app/users/:userId
- * path variable : userId
- * body : nickname
- */
-exports.patchUsers = async function (req, res) {
 
-    // jwt - userId, path variable :userId
-
-    const userIdFromJWT = req.verifiedToken.userId
-
-    const userId = req.params.userId;
-    const nickname = req.body.nickname;
-
-    // JWT는 이 후 주차에 다룰 내용
-    if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
-    } else {
-        if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
-
-        const editUserInfo = await userService.editUser(userId, nickname)
-        return res.send(editUserInfo);
-    }
-};
 
 
 

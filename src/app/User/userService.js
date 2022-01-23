@@ -15,23 +15,19 @@ const crypto = require("crypto");
 
 // Service: Create, Update, Delete 비즈니스 로직 처리
 
-exports.createUser = async function (email, password, nickname) {
+exports.createUser = async function (nickname, birthYear, gender) {
     try {
         // 이메일 중복 확인
-        // UserProvider에서 해당 이메일과 같은 User 목록을 받아서 emailRows에 저장한 후, 배열의 길이를 검사한다.
+        // UserProvider에서 해당 이메일과 같은 User 목록을 받아서 userIdRows에 저장한 후, 배열의 길이를 검사한다.
         // -> 길이가 0 이상이면 이미 해당 이메일을 갖고 있는 User가 조회된다는 의미
-        const emailRows = await userProvider.emailCheck(email);
-        if (emailRows.length > 0)
-            return errResponse(baseResponse.SIGNUP_REDUNDANT_EMAIL);
+        const userIdRows = await userProvider.userIdCheck(nickname);
+        if (userIdRows.length > 0)
+            return errResponse(baseResponse.SIGNUP_REDUNDANT_NICKNAME);
 
-        // 비밀번호 암호화
-        const hashedPassword = await crypto
-            .createHash("sha512")
-            .update(password)
-            .digest("hex");
+
 
         // 쿼리문에 사용할 변수 값을 배열 형태로 전달
-        const insertUserInfoParams = [email, hashedPassword, nickname];
+        const insertUserInfoParams = [nickname, birthYear, gender];
 
         const connection = await pool.getConnection(async (conn) => conn);
 
@@ -48,7 +44,7 @@ exports.createUser = async function (email, password, nickname) {
 
 
 // TODO: After 로그인 인증 방법 (JWT)
-exports.postSignIn = async function (email, password) {
+/*exports.postSignIn = async function (email, password) {
     try {
         // 이메일 여부 확인
         const emailRows = await userProvider.emailCheck(email);
@@ -100,11 +96,13 @@ exports.postSignIn = async function (email, password) {
     }
 };
 
-exports.editUser = async function (id, nickname) {
+
+ */
+exports.editUser = async function (nickname, birthYear, age, gender) {
     try {
-        console.log(id)
+        console.log(nickname)
         const connection = await pool.getConnection(async (conn) => conn);
-        const editUserResult = await userDao.updateUserInfo(connection, id, nickname)
+        const editUserResult = await userDao.updateUserInfo(connection, nickname, birthYear, age, gender)
         connection.release();
 
         return response(baseResponse.SUCCESS);

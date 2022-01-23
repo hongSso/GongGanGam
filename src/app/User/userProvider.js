@@ -21,21 +21,21 @@ exports.retrieveUserList = async function (email) {
 
 };
 
-exports.retrieveUser = async function (userId) {
+exports.retrieveUser = async function (userIdx) {
   const connection = await pool.getConnection(async (conn) => conn);
-  const userResult = await userDao.selectUserId(connection, userId);
+  const userResult = await userDao.selectUserId(connection, userIdx);
 
   connection.release();
 
   return userResult[0]; // 한 명의 유저 정보만을 불러오므로 배열 타입을 리턴하는 게 아닌 0번 인덱스를 파싱해서 오브젝트 타입 리턴
 };
 
-exports.emailCheck = async function (email) {
+exports.userIdCheck = async function (nickname) {
   const connection = await pool.getConnection(async (conn) => conn);
-  const emailCheckResult = await userDao.selectUserEmail(connection, email);
+  const nicknameCheckResult = await userDao.selectUserNickname(connection, nickname);
   connection.release();
 
-  return emailCheckResult;
+  return nicknameCheckResult;
 };
 
 exports.passwordCheck = async function (selectUserPasswordParams) {
