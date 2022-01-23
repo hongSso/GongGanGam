@@ -104,6 +104,24 @@ async function updateDiaryPush(connection, userIdx, diaryPush) {
   return updateDiaryPushRow[0];
 }
 
+async function updateAnswerPush(connection, userIdx, answerPush){
+  const updateAnswerPushQuery = `
+    UPDATE Push
+    SET answerPush = ?
+    WHERE userIdx = ?;`;
+  const updateAnswerPushRow = await connection.query(updateAnswerPushQuery,[answerPush, userIdx]);
+  return updateAnswerPushRow[0];
+}
+
+async function updateChatPush(connection, userIdx, chatPush){
+  const updateChatPushQuery = `
+    UPDATE Push
+    SET chatPush = ?
+    WHERE userIdx = ?;`;
+  const updateChatPushRow = await connection.query(updateChatPushQuery,[chatPush, userIdx]);
+  return updateChatPushRow[0];
+}
+
 module.exports = {
   selectUser,
   selectUserNickname,
@@ -114,4 +132,6 @@ module.exports = {
   updateUserInfo,
   updateUserStatus,
   updateDiaryPush,
+  updateAnswerPush,
+  updateChatPush,
 };
