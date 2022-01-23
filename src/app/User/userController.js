@@ -118,6 +118,8 @@ exports.patchUsersStatus = async function (req, res) {
     const userIdx = req.params.userIdx;
     const status = req.body.status;
 
+
+
     if (!status) return res.send(errResponse(baseResponse.USER_STATUS_EMPTY));
     const editUserStatus = await userService.editUserStatus(userIdx,status);
     return res.send(editUserStatus);
@@ -147,11 +149,11 @@ exports.patchDiaryPush = async function (req, res) {
 };
 
 /** API No. 10
-* API Name : 받은 답장 알림 설정
-* [PATCH] /app/users/:userIdx/push/answer
-* path variable : userIdx, answer
-* body : diaryPush
-*/
+ * API Name : 받은 답장 알림 설정
+ * [PATCH] /app/users/:userIdx/push/answer
+ * path variable : userIdx, answer
+ * body : diaryPush
+ */
 exports.patchPushAnswer = async function (req, res) {
 
 
@@ -177,7 +179,7 @@ exports.patchPushChat = async function (req, res) {
 
 
     const userIdx = req.params.userIdx;
-    const answerPush = req.body.chatPush;
+    const chatPush = req.body.chatPush;
 
 
     if (!chatPush) return res.send(errResponse(baseResponse.USER_CHAT_PUSH_EMPTY));
