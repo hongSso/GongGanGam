@@ -15,28 +15,24 @@ const crypto = require("crypto");
 
 // Service: Create, Update, Delete 비즈니스 로직 처리
 
-exports.createUser = async function (email, password, nickname) {
+exports.createUser = async function (nickname, birthYear, gender) {
     try {
         // 이메일 중복 확인
-        // UserProvider에서 해당 이메일과 같은 User 목록을 받아서 emailRows에 저장한 후, 배열의 길이를 검사한다.
+        // UserProvider에서 해당 이메일과 같은 User 목록을 받아서 userIdRows에 저장한 후, 배열의 길이를 검사한다.
         // -> 길이가 0 이상이면 이미 해당 이메일을 갖고 있는 User가 조회된다는 의미
-        const emailRows = await userProvider.emailCheck(email);
-        if (emailRows.length > 0)
-            return errResponse(baseResponse.SIGNUP_REDUNDANT_EMAIL);
+        const userNicknameRows = await userProvider.userNicknameCheck(nickname);
+        if (userNicknameRows.length > 0)
+            return errResponse(baseResponse.SIGNUP_REDUNDANT_NICKNAME);
 
-        // 비밀번호 암호화
-        const hashedPassword = await crypto
-            .createHash("sha512")
-            .update(password)
-            .digest("hex");
+
 
         // 쿼리문에 사용할 변수 값을 배열 형태로 전달
-        const insertUserInfoParams = [email, hashedPassword, nickname];
+        const insertUserInfoParams = [nickname, birthYear, gender];
 
         const connection = await pool.getConnection(async (conn) => conn);
 
-        const userIdResult = await userDao.insertUserInfo(connection, insertUserInfoParams);
-        console.log(`추가된 회원 : ${userIdResult[0].insertId}`)
+        const userNicknameResult = await userDao.insertUserInfo(connection, insertUserInfoParams);
+        console.log(`추가된 회원 : ${userNicknameResult[0].insertId}`)
         connection.release();
         return response(baseResponse.SUCCESS);
 
@@ -46,7 +42,7 @@ exports.createUser = async function (email, password, nickname) {
     }
 };
 
-
+/*
 // TODO: After 로그인 인증 방법 (JWT)
 exports.postSignIn = async function (email, password) {
     try {
@@ -99,18 +95,49 @@ exports.postSignIn = async function (email, password) {
         return errResponse(baseResponse.DB_ERROR);
     }
 };
+ */
 
-exports.editUser = async function (id, nickname) {
+exports.editUser = async function ( nickname, birthYear, gender,userIdx) {
     try {
-        console.log(id)
+        console.log(nickname, birthYear, gender,userIdx);
         const connection = await pool.getConnection(async (conn) => conn);
-        const editUserResult = await userDao.updateUserInfo(connection, id, nickname)
+        const editUserResult = await userDao.updateUserInfo(connection, nickname, birthYear, gender,userIdx)
         connection.release();
 
         return response(baseResponse.SUCCESS);
 
     } catch (err) {
         logger.error(`App - editUser Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+}
+
+exports.editUserStatus = async function (userIdx, status) {
+    try {
+        console.log(userIdx, status);
+        const connection = await pool.getConnection(async (conn) => conn);
+        const editStatusResult = await userDao.updateUserStatus(connection, userIdx, status)
+        connection.release();
+
+        return response(baseResponse.SUCCESS);
+
+    } catch (err) {
+        logger.error(`App - editUserStatus Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+}
+
+exports.editDiaryPush= async function (userIdx, diaryPush) {
+    try {
+        console.log(userIdx, diaryPush);
+        const connection = await pool.getConnection(async (conn) => conn);
+        const editDiaryPushResult = await userDao.updateDiaryPush(connection, userIdx, diaryPush)
+        connection.release();
+
+        return response(baseResponse.SUCCESS);
+
+    } catch (err) {
+        logger.error(`App - editDiaryPush Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
 }
