@@ -1,6 +1,4 @@
 
-// 새롭게 추가한 함수를 아래 부분에서 export 해줘야 외부의 Provider, Service 등에서 사용가능합니다.
-
 // 유저 생성
 async function insertUserInfo(connection, insertUserInfoParams) {
   const insertUserInfoQuery = `
@@ -28,8 +26,9 @@ async function selectUser(connection) {
 // 닉네임으로 회원 조회
 async function selectUserNickname(connection, nickname) {
   const selectUserNicknameQuery = `
-    SELECT nickname,birthYear, gender
-    FROM User;
+    SELECT nickname
+    FROM User
+    WHERE nickname=?;
   `;
   const [nicknameRows] = await connection.query(selectUserNicknameQuery, nickname);
   return nicknameRows;
@@ -38,10 +37,10 @@ async function selectUserNickname(connection, nickname) {
 // userId 회원 조회
 async function selectUserId(connection, userIdx) {
   const selectUserIdQuery = `
-                 SELECT userIdx, nickname, birthYear, diaryPush, answerPush, chatPush, email, profImg
+                 SELECT  nickname, birthYear, diaryPush, answerPush, chatPush, profImg
                  FROM User
-                 LEFT JOIN Push on User.useridx=Push.useridx
-                 WHERE userIdx = ?;
+                 LEFT JOIN Push ON Push.useridx=User.useridx
+                 WHERE User.userIdx = ?;
                  `;
   const [userRow] = await connection.query(selectUserIdQuery, userIdx);
   return userRow;
@@ -49,6 +48,7 @@ async function selectUserId(connection, userIdx) {
 
 
 // 패스워드 체크
+
 async function selectUserPassword(connection, selectUserPasswordParams) {
   const selectUserPasswordQuery = `
         SELECT email, nickname, password
@@ -65,9 +65,9 @@ async function selectUserPassword(connection, selectUserPasswordParams) {
 // 유저 계정 상태 체크 (jwt 생성 위해 id 값도 가져온다.)
 async function selectUserAccount(connection, email) {
   const selectUserAccountQuery = `
-        SELECT status, id
-        FROM User 
-        WHERE email = ?;`;
+    SELECT status, id
+    FROM User
+    WHERE email = ?;`;
   const selectUserAccountRow = await connection.query(
       selectUserAccountQuery,
       email
@@ -75,15 +75,34 @@ async function selectUserAccount(connection, email) {
   return selectUserAccountRow[0];
 }
 
-async function updateUserInfo(connection, nickname, birthYear, age, gender) {
+
+async function updateUserInfo(connection,nickname, birthYear, gender,userIdx ) {
   const updateUserQuery = `
-  UPDATE User 
-  SET nickname = ?
-  WHERE id = ?;`;
-  const updateUserRow = await connection.query(updateUserQuery, [nickname, id]);
+    UPDATE User
+    SET nickname=?, birthYear=?, gender=?
+    WHERE userIdx = ?;`;
+  const updateUserRow = await connection.query(updateUserQuery, [nickname,birthYear, gender, userIdx]);
   return updateUserRow[0];
 }
 
+async function updateUserStatus(connection,  userIdx, status) {
+  const updateUserStatusQuery = `
+    UPDATE User
+    SET status = 'INACTIVE'
+    WHERE userIdx = ?;`;
+  const updateUserStatusRow = await connection.query(updateUserStatusQuery, status, userIdx);
+  return updateUserStatusRow[0];
+}
+
+async function updateDiaryPush(connection, userIdx, diaryPush) {
+
+  const updateDiaryPushQuery = `
+    UPDATE Push
+    SET diaryPush = ?
+    WHERE userIdx = ?;`;
+  const updateDiaryPushRow = await connection.query(updateDiaryPushQuery,[diaryPush, userIdx]);
+  return updateDiaryPushRow[0];
+}
 
 module.exports = {
   selectUser,
@@ -93,4 +112,6 @@ module.exports = {
   selectUserPassword,
   selectUserAccount,
   updateUserInfo,
+  updateUserStatus,
+  updateDiaryPush,
 };

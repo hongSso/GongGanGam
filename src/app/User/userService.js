@@ -20,8 +20,8 @@ exports.createUser = async function (nickname, birthYear, gender) {
         // 이메일 중복 확인
         // UserProvider에서 해당 이메일과 같은 User 목록을 받아서 userIdRows에 저장한 후, 배열의 길이를 검사한다.
         // -> 길이가 0 이상이면 이미 해당 이메일을 갖고 있는 User가 조회된다는 의미
-        const userIdRows = await userProvider.userIdCheck(nickname);
-        if (userIdRows.length > 0)
+        const userNicknameRows = await userProvider.userNicknameCheck(nickname);
+        if (userNicknameRows.length > 0)
             return errResponse(baseResponse.SIGNUP_REDUNDANT_NICKNAME);
 
 
@@ -31,8 +31,8 @@ exports.createUser = async function (nickname, birthYear, gender) {
 
         const connection = await pool.getConnection(async (conn) => conn);
 
-        const userIdResult = await userDao.insertUserInfo(connection, insertUserInfoParams);
-        console.log(`추가된 회원 : ${userIdResult[0].insertId}`)
+        const userNicknameResult = await userDao.insertUserInfo(connection, insertUserInfoParams);
+        console.log(`추가된 회원 : ${userNicknameResult[0].insertId}`)
         connection.release();
         return response(baseResponse.SUCCESS);
 
@@ -42,9 +42,9 @@ exports.createUser = async function (nickname, birthYear, gender) {
     }
 };
 
-
+/*
 // TODO: After 로그인 인증 방법 (JWT)
-/*exports.postSignIn = async function (email, password) {
+exports.postSignIn = async function (email, password) {
     try {
         // 이메일 여부 확인
         const emailRows = await userProvider.emailCheck(email);
@@ -95,20 +95,49 @@ exports.createUser = async function (nickname, birthYear, gender) {
         return errResponse(baseResponse.DB_ERROR);
     }
 };
-
-
  */
-exports.editUser = async function (nickname, birthYear, age, gender) {
+
+exports.editUser = async function ( nickname, birthYear, gender,userIdx) {
     try {
-        console.log(nickname)
+        console.log(nickname, birthYear, gender,userIdx);
         const connection = await pool.getConnection(async (conn) => conn);
-        const editUserResult = await userDao.updateUserInfo(connection, nickname, birthYear, age, gender)
+        const editUserResult = await userDao.updateUserInfo(connection, nickname, birthYear, gender,userIdx)
         connection.release();
 
         return response(baseResponse.SUCCESS);
 
     } catch (err) {
         logger.error(`App - editUser Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+}
+
+exports.editUserStatus = async function (userIdx, status) {
+    try {
+        console.log(userIdx, status);
+        const connection = await pool.getConnection(async (conn) => conn);
+        const editStatusResult = await userDao.updateUserStatus(connection, userIdx, status)
+        connection.release();
+
+        return response(baseResponse.SUCCESS);
+
+    } catch (err) {
+        logger.error(`App - editUserStatus Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+}
+
+exports.editDiaryPush= async function (userIdx, diaryPush) {
+    try {
+        console.log(userIdx, diaryPush);
+        const connection = await pool.getConnection(async (conn) => conn);
+        const editDiaryPushResult = await userDao.updateDiaryPush(connection, userIdx, diaryPush)
+        connection.release();
+
+        return response(baseResponse.SUCCESS);
+
+    } catch (err) {
+        logger.error(`App - editDiaryPush Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
 }

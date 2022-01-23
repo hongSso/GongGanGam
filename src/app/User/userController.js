@@ -34,6 +34,9 @@ exports.postUsers = async function (req, res) {
 
     if (!gender)
         return res.send(response(baseResponse.USER_GENDER_EMPTY));
+    //길이 체크
+    if (nickname.length > 45)
+        return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH))
 
     // createUser 함수 실행을 통한 결과 값을 signUpResponse에 저장
     const signUpResponse = await userService.createUser(
@@ -50,29 +53,21 @@ exports.postUsers = async function (req, res) {
  * API No. 5
  * API Name : 회원 정보 수정 API + JWT + Validation
  * [PATCH] /app/users/:userIdx
- * body : nickname, birthYear, age, gender
+ * path variable : userIdx
+ * body : nickname, birthYear, gender
  */
 exports.patchUsers = async function (req, res) {
 
-    // jwt - userIdx, path variable :userId
 
-    const userIdFromJWT = req.verifiedToken.userId
-
-    const userIdx = req.params.userId;
-    const nickname = req.body.nickname;
-    const birthYear = req.body.birthYear;
-    const age = req.body.age;
-    const gender = req.body.gender;
+    const userIdx = req.params.userIdx;
+    const {nickname,birthYear,gender} = req.body;
 
     // JWT는 이 후 주차에 다룰 내용
-    if (userIdFromJWT != userIdx) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
-    } else {
-        if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
+    if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
 
-        const editUserInfo = await userService.editUser(nickname, birthYear, age, gender);
-        return res.send(editUserInfo);
-    }
+    const editUserInfo = await userService.editUser(userIdx, nickname, birthYear, gender);
+    return res.send(editUserInfo);
+
 };
 
 
@@ -87,8 +82,6 @@ exports.getUserById = async function (req, res) {
      * Path Variable: userIdx
      */
     const userIdx = req.params.userIdx;
-    const userIdFromJWT = req.verifiedToken.userId
-    // errResponse 전달
     if (!userIdx) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
 
     // userId를 통한 유저 검색 함수 호출 및 결과 저장
@@ -96,21 +89,62 @@ exports.getUserById = async function (req, res) {
     return res.send(response(baseResponse.SUCCESS, userByUserIdx));
 };
 
+exports.patchUsers = async function (req, res) {
 
-// TODO: After 로그인 인증 방법 (JWT)
+
+    const userIdx = req.params.userIdx;
+    const nickname = req.body.nickname;
+    const birthYear = req.body.birthYear;
+    const age = req.body.age;
+    const gender = req.body.gender;
+
+    // JWT는 이 후 주차에 다룰 내용
+    if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
+    const editUserInfo = await userService.editUser(nickname, birthYear, gender,userIdx);
+    return res.send(editUserInfo);
+
+};
+
 /**
- * API No. 4
- * API Name : 로그인 API
- * [POST] /app/login
- * body : email, passsword
+ * API No. 7
+ * API Name : 탈퇴하기 API
+ * [PATCH] /app/users/:userIdx/status
+ * Path Variable : userIdx, status
+ * body : status
  */
-exports.login = async function (req, res) {
+exports.patchUsersStatus = async function (req, res) {
 
-    const {email, password} = req.body;
 
-    const signInResponse = await userService.postSignIn(email, password);
+    const userIdx = req.params.userIdx;
+    const status = req.body.status;
 
-    return res.send(signInResponse);
+    // JWT는 이 후 주차에 다룰 내용
+    if (!status) return res.send(errResponse(baseResponse.USER_STATUS_EMPTY));
+    const editUserStatus = await userService.editUserStatus(userIdx,status);
+    return res.send(editUserStatus);
+
+};
+
+/**
+ * API No. 9
+ * API Name : 받은 일기 알림 설정
+ * [PATCH] /app/users/:userIdx/push/diary
+ * path variable : push, diary
+ * body : diaryPush
+ */
+exports.patchDiaryPush = async function (req, res) {
+
+
+    const userIdx = req.params.userIdx;
+    const diaryPush = req.body.diaryPush;
+
+
+    // JWT는 이 후 주차에 다룰 내용
+    if (!diaryPush) return res.send(errResponse(baseResponse.USER_DIARY_PUSH_EMPTY));
+
+    const editDiaryPush = await userService.editDiaryPush(userIdx, diaryPush);
+    return res.send(editDiaryPush);
+
 };
 
 
@@ -119,14 +153,3 @@ exports.login = async function (req, res) {
 
 
 
-
-
-// JWT 이 후 주차에 다룰 내용
-/** JWT 토큰 검증 API
- * [GET] /app/auto-login
- */
-exports.check = async function (req, res) {
-    const userIdResult = req.verifiedToken.userId;
-    console.log(userIdResult);
-    return res.send(response(baseResponse.TOKEN_VERIFICATION_SUCCESS));
-};
