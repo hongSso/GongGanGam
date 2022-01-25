@@ -37,7 +37,7 @@ exports.getAnswerList = async function (req, res) {
  * API Name : 받은 일기 조회 API
  * [GET] /app/diarys/share/:diaryIdx
  */
-exports.getSharedDiarys = async function (req, res) {
+exports.getSharedDiaryDetail = async function (req, res) {
 
     const diaryIdx = req.params.diaryIdx;
 
@@ -60,9 +60,18 @@ exports.getAnswer = async function (req, res) {
     const userIdx = 1;
 
     if (!diaryIdx) return res.send(errResponse(baseResponse.DIARY_DIARYIDX_EMPTY));
+    // 존재하지 않는 유저인지 확인
+    const userCheckResult = await diaryProvider.checkUser(userIdx);
+    if (userCheckResult.length<1) return res.send(errResponse(baseResponse.USER_NOT_EXIST));
+    // 존재하지 않는 다이어리인지 확인
+    const diaryCheckResult = await diaryProvider.checkDiary(diaryIdx);
+    if (diaryCheckResult.length<1) return res.send(errResponse(baseResponse.DIARY_DIARYIDX_NOT_EXIST));
+    // 다이어리의 접근하는 유저인지 확인?
+    // if (diaryCheckResult[0].userIdx !== userIdx) return res.send(errResponse(baseResponse.ANSWER_USERIDX_INVALID));
 
     const answerResult = await diaryProvider.retrieveAnswer(diaryIdx, userIdx);
-    if (answerResult.length<1) return res.send(errResponse(baseResponse.DIARY_DIARYIDX_NOT_EXIST));
+
+    if (answerResult.answer.length <1) return res.send(errResponse(baseResponse.ANSWER_DIARY_NOT_EXIST));
     return res.send(response(baseResponse.SUCCESS, answerResult));
 
 };

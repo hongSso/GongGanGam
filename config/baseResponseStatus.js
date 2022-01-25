@@ -57,7 +57,8 @@ module.exports = {
     USER_NOT_EXIST : { "isSuccess": false, "code": 5006, "message": "존재하지 않는 유저입니다."},
     DIARY_USER_INVALID : { "isSuccess": false, "code": 5007, "message": "수정할 권한이 없는 유저입니다."},
     ANSWER_ANSWERIDX_EMPTY : { "isSuccess": false, "code": 5008, "message": "answerIdx를 입력해주세요."},
-    ANSWER_USERIDX_INVALID : { "isSuccess": false, "code": 5008, "message": "유저를 다시 확인해주세요."},
+    ANSWER_USERIDX_INVALID : { "isSuccess": false, "code": 5009, "message": "유저를 다시 확인해주세요."},
+    ANSWER_DIARY_NOT_EXIST : { "isSuccess": false, "code": 5010, "message": "답장이 없습니다. 다시 확인해주세요."},
 
     // 6000번 소연
 
