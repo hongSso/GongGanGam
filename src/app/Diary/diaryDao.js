@@ -138,6 +138,20 @@ async function insertAnswer(connection, insertAnswerParams) {
     return insertAnswerRow;
 }
 
+// 답장하기
+async function insertShare(connection, shareParams) {
+    const insertShareQuery = `
+        INSERT INTO DiaryShare(diaryIdx, shareUserIdx)
+        VALUES (?, ?);
+    `;
+    const insertAnswerRow = await connection.query(
+        insertShareQuery,
+        shareParams
+    );
+
+    return insertAnswerRow;
+}
+
 // 다이어리 status를 F로 수정하기
 async function updateDiaryStatus(connection, diaryIdx) {
     const params = ['INACTIVE', diaryIdx];
@@ -184,5 +198,6 @@ async function checkDiaryExists(connection, diaryIdx) {
 module.exports = {
     selectMonthDiary, selectDiary, selectDiaryAnswer, selectShareList, selectShareDiary,
     insertDiary, updateDiaryStatus, checkUserExists, checkDiaryExists, selectAnswer,
-    selectDiaryDetail, selectAnswerDetail, insertAnswer, selectRandUser, updateDiary
+    selectDiaryDetail, selectAnswerDetail, insertAnswer, selectRandUser, updateDiary,
+    insertShare
 };

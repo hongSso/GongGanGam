@@ -28,13 +28,17 @@ exports.createDiary = async function (userIdx, date, emoji, content, shareAgree)
             await connection.beginTransaction();
 
             if (shareAgree === 'T') {
-                //const diaryResult = await diaryDao.insertDiary(connection, insertDiaryParams);
+                const diaryResult = await diaryDao.insertDiary(connection, insertDiaryParams);
+                const insertDiaryIdx = diaryResult[0].insertId;
+                console.log('insert:' + insertDiaryIdx);
 
                 // 랜덤의 유저 가져오기
                 const randUser = await diaryDao.selectRandUser(connection, userIdx);
-                console.log('rand:' + randUser);
+                console.log(randUser[0].userIdx);
+                const randUserIdx = randUser[0].userIdx;
 
-                //const shareResult = await diaryDaro.insertShare(connection, )
+                const shareParams = [insertDiaryIdx, randUserIdx];
+                const shareResult = await diaryDao.insertShare(connection, shareParams);
             }
 
             await connection.commit();
