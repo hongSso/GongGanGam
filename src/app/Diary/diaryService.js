@@ -31,7 +31,7 @@ exports.createDiary = async function (userIdx, date, emoji, content, shareAgree)
                 //const diaryResult = await diaryDao.insertDiary(connection, insertDiaryParams);
 
                 // 랜덤의 유저 가져오기
-                const randUser = await diaryDao.selectRandUser(userIdx);
+                const randUser = await diaryDao.selectRandUser(connection, userIdx);
                 console.log('rand:' + randUser);
 
                 //const shareResult = await diaryDaro.insertShare(connection, )
