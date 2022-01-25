@@ -50,9 +50,6 @@ exports.createDiary = async function (userIdx, date, emoji, content, shareAgree)
             connection.release();
         }
 
-
-
-
     } catch (err) {
         logger.error(`App - createDiary Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);

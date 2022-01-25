@@ -64,14 +64,24 @@ exports.retrieveAnswerList = async function (userIdx) {
 exports.retrieveAnswer = async function (diaryIdx, userIdx) {
     const connection = await pool.getConnection(async (conn) => conn);
 
-    const diary = await diaryDao.selectDiaryDetail(connection, diaryIdx);
-    const params = [diaryIdx, userIdx];
-    const answer = await diaryDao.selectAnswerDetail(connection, params);
-    const result = {'diary' : diary, 'answer' : answer};
+    try {
+        await connection.beginTransaction();
 
-    connection.release();
+        const diary = await diaryDao.selectDiaryDetail(connection, diaryIdx);
+        const params = [diaryIdx, userIdx];
+        const answer = await diaryDao.selectAnswerDetail(connection, params);
+        const result = {'diary' : diary, 'answer' : answer};
 
-    return result;
+        await connection.commit();
+        return result;
+    } catch (err) {
+        console.log(err);
+        await connection.rollback();
+    } finally {
+        connection.release();
+    }
+
+
 };
 
 exports.checkUser = async function (userIdx) {
