@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "39785485180",
+    "project_id": "soyeon-0510",
+    "storage_bucket": "soyeon-0510.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:39785485180:android:bc9e72845caf5b8a740af9",
+        "android_client_info": {
+          "package_name": "com.company.ggg"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "39785485180-pl91pkf2kll49jo74ln36q02kqhmf8en.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsO7vnmeAfqRotSg9mbzji8UQ-61CI5io"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "39785485180-pl91pkf2kll49jo74ln36q02kqhmf8en.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
