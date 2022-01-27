@@ -190,19 +190,13 @@ exports.postDiary = async function (req, res) {
             } else {
                 console.log(`File uploaded successfully.`);
                 console.log(data.Location)
-                const postdiaryResponse = diaryService.createDiaryImg(userIdx, date, emoji, content, shareAgree, data.Location);
-                return res.send(postdiaryResponse);
+                const diaryResponse = diaryService.createDiaryImg(userIdx, date, emoji, content, shareAgree, data.Location);
+                //return res.send(diaryResponse);
+                return res.send(response(baseResponse.SUCCESS));
 
             }
         });
     }
-
-
-    // 사진 있으면 S3에 사진 올리고 그 링크도 넣기.. 사진 있는 경우와 없는 경우도 나눠서?
-    // Service에서 다이어리 만들고 shareAgree가 T면 DiaryShare에 추가해주기 (Transaction 사용해서)
-
-    //return res.send(response(baseResponse.SUCCESS));
-
 };
 
 /**

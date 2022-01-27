@@ -23,14 +23,14 @@ exports.createDiary = async function (userIdx, date, emoji, content, shareAgree)
 
         const connection = await pool.getConnection(async (conn) => conn);
 
-
         try {
             await connection.beginTransaction();
 
+            const diaryResult = await diaryDao.insertDiary(connection, insertDiaryParams);
+            const insertDiaryIdx = diaryResult[0].insertId;
+            console.log('insert:' + insertDiaryIdx);
+
             if (shareAgree === 'T') {
-                const diaryResult = await diaryDao.insertDiary(connection, insertDiaryParams);
-                const insertDiaryIdx = diaryResult[0].insertId;
-                console.log('insert:' + insertDiaryIdx);
 
                 // 랜덤의 유저 가져오기
                 const randUser = await diaryDao.selectRandUser(connection, userIdx);
@@ -69,10 +69,11 @@ exports.createDiaryImg = async function (userIdx, date, emoji, content, shareAgr
         try {
             await connection.beginTransaction();
 
+            const diaryResult = await diaryDao.insertDiaryImg(connection, insertDiaryParams);
+            const insertDiaryIdx = diaryResult[0].insertId;
+            console.log('insert:' + insertDiaryIdx);
+
             if (shareAgree === 'T') {
-                const diaryResult = await diaryDao.insertDiaryImg(connection, insertDiaryParams);
-                const insertDiaryIdx = diaryResult[0].insertId;
-                console.log('insert:' + insertDiaryIdx);
 
                 // 랜덤의 유저 가져오기
                 const randUser = await diaryDao.selectRandUser(connection, userIdx);
