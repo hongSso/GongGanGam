@@ -60,9 +60,11 @@ module.exports = {
     ANSWER_USERIDX_INVALID : { "isSuccess": false, "code": 5008, "message": "유저를 다시 확인해주세요."},
 
     // 6000번 소연
-    USER_BIRTHYEAR_EMPTY : {"isSuccess": false, "code": 6000, "message": "출생년도 값을 입력해주세요."},
-    USER_GENDER_EMPTY : {"isSuccess": false, "code": 6001, "message": "성별을 입력해주세요."},
-    USER_DIARY_PUSH_EMPTY : {"isSuccess": false, "code": 6003, "message": "받은일기 알림 설정을 선택해주세요."},
-    USER_ANSWER_PUSH_EMPTY : {"isSuccess": false, "code": 6004, "message": "받은답장 알림 설정을 선택해주세요."},
-    USER_CHAT_PUSH_EMPTY : {"isSuccess": false, "code": 6005, "message": "채팅 알림 설정을 선택해주세요."},
+    USER_BIRTHYEAR_EMPTY: {"isSuccess": false, "code": 6000, "message": "출생년도 값을 입력해주세요."},
+    USER_GENDER_EMPTY: {"isSuccess": false, "code": 6001, "message": "성별을 입력해주세요."},
+    USER_DIARY_PUSH_EMPTY: {"isSuccess": false, "code": 6003, "message": "받은일기 알람 설정을 선택해주세요."},
+    USER_CHAT_PUSH_EMPTY : {"isSuccess": false, "code": 6004, "message": "채팅 알람 설정을 선택해주세요."},
+    USER_NICKNAME_EMPTY : {"isSuccess": false, "code": 6005, "message": "닉네임을 입력해주세요."},
+    USER_STATUS_ALREADY_INACTIVE : {"isSuccess": false, "code": 6006, "message": "이미 탈퇴한 회원입니다."},
+
 }
