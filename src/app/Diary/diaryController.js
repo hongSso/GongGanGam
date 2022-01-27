@@ -3,6 +3,8 @@ const diaryProvider = require("../../app/Diary/diaryProvider");
 const diaryService = require("../../app/Diary/diaryService");
 const baseResponse = require("../../../config/baseResponseStatus");
 const {response, errResponse} = require("../../../config/response");
+const s3Client = require("../../../config/s3");
+const AWS = require('aws-sdk');
 
 const formidable = require('formidable')
 const fs = require('fs');
@@ -90,7 +92,8 @@ exports.getDiarys = async function (req, res) {
     const month = req.query.month;
 
     if (!year) return res.send(errResponse(baseResponse.DIARY_YEAR_EMPTY));
-    if (!month) return res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY))
+    if (!month) return res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY));
+
 
     const monthDiaryResult = await diaryProvider.retrieveMonthList(year, month);
     return res.send(response(baseResponse.SUCCESS, monthDiaryResult));
@@ -133,6 +136,8 @@ exports.postDiary = async function (req, res) {
      */
 
     const {emoji, year, month, day, content, shareAgree} = req.body;
+    const file = req.files;
+    console.log(file);
 
     const userIdx = 1;
 
@@ -141,8 +146,6 @@ exports.postDiary = async function (req, res) {
     if (!day) return res.send(errResponse(baseResponse.DIARY_DAY_EMPTY));
 
     let date = year;
-    //if (!req.files) console.log('no file');
-    //else console.log(req.files.uploadFile);
 
     if (month < 10) {
         date = date + '-0' +month;
@@ -153,14 +156,52 @@ exports.postDiary = async function (req, res) {
         if (day < 10) date = date + '-0' + day;
         else date = date + '-' + day;
     }
-
     console.log(date);
+
+    // 파일 없으면 파일 없이 그냥 업로드
+    if (!req.files) {
+        console.log('no file');
+        const postdiaryResponse = await diaryService.createDiary(userIdx, date, emoji, content, shareAgree);
+        return res.send(postdiaryResponse);
+    }
+    else {
+        const img = req.files.uploadImg;
+        console.log(img)
+        var bucketName = 'usermodel'
+
+        const s3 = new AWS.S3({
+            accessKeyId: s3Client.accessid,
+            secretAccessKey: s3Client.secret,
+            region: 'ap-northeast-2',
+            Bucket: bucketName
+        });
+
+        const params = {
+            Bucket: 'usermodel',
+            Key: img.name,
+            Body: img.data
+        };
+        s3.upload(params, function(err, data) {
+            if (err) {
+                //throw err;
+                console.log('error')
+                console.log(err)
+                return res.send(errResponse(baseResponse.DIARY_S3_ERROR));
+            } else {
+                console.log(`File uploaded successfully.`);
+                console.log(data.Location)
+                const postdiaryResponse = diaryService.createDiaryImg(userIdx, date, emoji, content, shareAgree, data.Location);
+                return res.send(postdiaryResponse);
+
+            }
+        });
+    }
 
 
     // 사진 있으면 S3에 사진 올리고 그 링크도 넣기.. 사진 있는 경우와 없는 경우도 나눠서?
     // Service에서 다이어리 만들고 shareAgree가 T면 DiaryShare에 추가해주기 (Transaction 사용해서)
-    const postdiaryResponse = await diaryService.createDiary(userIdx, date, emoji, content, shareAgree);
-    return res.send(postdiaryResponse);
+
+    //return res.send(response(baseResponse.SUCCESS));
 
 };
 

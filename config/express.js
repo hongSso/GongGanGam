@@ -1,6 +1,7 @@
 const express = require('express');
 const compression = require('compression');
 const methodOverride = require('method-override');
+const fileUpload = require('express-fileupload');
 var cors = require('cors');
 module.exports = function () {
     const app = express();
@@ -14,6 +15,11 @@ module.exports = function () {
     app.use(methodOverride());
 
     app.use(cors());
+
+    app.use(fileUpload({
+        createParentPath: true
+    }));
+
     // app.use(express.static(process.cwd() + '/public'));
 
     /* App (Android, iOS) */

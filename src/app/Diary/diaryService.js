@@ -56,6 +56,48 @@ exports.createDiary = async function (userIdx, date, emoji, content, shareAgree)
     }
 };
 
+exports.createDiaryImg = async function (userIdx, date, emoji, content, shareAgree, imgUrl) {
+    try {
+
+        // 쿼리문에 사용할 변수 값을 배열 형태로 전달
+        const insertDiaryParams = [userIdx, date, emoji, content, shareAgree, imgUrl];
+        console.log(insertDiaryParams);
+
+        const connection = await pool.getConnection(async (conn) => conn);
+
+
+        try {
+            await connection.beginTransaction();
+
+            if (shareAgree === 'T') {
+                const diaryResult = await diaryDao.insertDiaryImg(connection, insertDiaryParams);
+                const insertDiaryIdx = diaryResult[0].insertId;
+                console.log('insert:' + insertDiaryIdx);
+
+                // 랜덤의 유저 가져오기
+                const randUser = await diaryDao.selectRandUser(connection, userIdx);
+                console.log(randUser[0].userIdx);
+                const randUserIdx = randUser[0].userIdx;
+
+                const shareParams = [insertDiaryIdx, randUserIdx];
+                const shareResult = await diaryDao.insertShare(connection, shareParams);
+            }
+
+            await connection.commit();
+            return response(baseResponse.SUCCESS);
+        } catch (err) {
+            console.log(err);
+            await connection.rollback();
+        } finally {
+            connection.release();
+        }
+
+    } catch (err) {
+        logger.error(`App - createDiary Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
+
 exports.updateDiaryStatus = async function (userIdx, diaryIdx) {
     try {
 

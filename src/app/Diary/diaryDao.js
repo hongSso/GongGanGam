@@ -110,11 +110,25 @@ async function selectRandUser(connection, userIdx) {
     return diaryInfo;
 }
 
-// 유저 생성
+// 다이어리 생성
 async function insertDiary(connection, insertDiaryParams) {
     const insertDiaryQuery = `
         INSERT INTO Diary(userIdx, diaryDate, emoji, contents, shareAgree)
         VALUES (?, ?, ?, ?, ?);
+    `;
+    const insertHeartRow = await connection.query(
+        insertDiaryQuery,
+        insertDiaryParams
+    );
+
+    return insertHeartRow;
+}
+
+// 다이어리 생성 (사진 포함)
+async function insertDiaryImg(connection, insertDiaryParams) {
+    const insertDiaryQuery = `
+        INSERT INTO Diary(userIdx, diaryDate, emoji, contents, shareAgree, imgUrl)
+        VALUES (?, ?, ?, ?, ?, ?);
     `;
     const insertHeartRow = await connection.query(
         insertDiaryQuery,
@@ -199,5 +213,5 @@ module.exports = {
     selectMonthDiary, selectDiary, selectDiaryAnswer, selectShareList, selectShareDiary,
     insertDiary, updateDiaryStatus, checkUserExists, checkDiaryExists, selectAnswer,
     selectDiaryDetail, selectAnswerDetail, insertAnswer, selectRandUser, updateDiary,
-    insertShare
+    insertShare, insertDiaryImg
 };
