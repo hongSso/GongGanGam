@@ -36,15 +36,27 @@ async function selectDiaryAnswer(connection, diaryIdx) {
 }
 
 // 공유된 다이어리 리스트 가져오기
-async function selectShareList(connection) {
+async function selectShareList(connection, userIdx, pageSize, offset) {
+    const params = [userIdx, pageSize, offset];
     const selectDeliveryQuery = `
         select DiaryShare.diaryIdx, Diary.userIdx, nickname as userNickname, profImg as userProfImg, contents as diaryContents,
                date_format(diaryDate, '%y.%m.%d') as diaryDate, isRead
         from DiaryShare join Diary on Diary.diaryIdx=DiaryShare.diaryIdx
                         join User on Diary.userIdx = User.userIdx
-        where shareUserIdx=1 order by diaryDate;
+        where shareUserIdx=? order by diaryDate limit ? offset ?;
                 `;
-    const [diaryInfo] = await connection.query(selectDeliveryQuery);
+    const [diaryInfo] = await connection.query(selectDeliveryQuery, params);
+    return diaryInfo;
+}
+
+// 공유된 다이어리 리스트 가져오기
+async function selectAllShareList(connection, userIdx) {
+    const selectDeliveryQuery = `
+        select DiaryShare.diaryIdx
+        from DiaryShare join Diary on Diary.diaryIdx=DiaryShare.diaryIdx
+        where shareUserIdx=? and Diary.status = 'ACTIVE' order by diaryDate;
+                `;
+    const [diaryInfo] = await connection.query(selectDeliveryQuery, userIdx);
     return diaryInfo;
 }
 
@@ -61,13 +73,24 @@ async function selectShareDiary(connection, diaryIdx) {
 }
 
 // 받은 답장 리스트 가져오기
-async function selectAnswer(connection, userIdx) {
+async function selectAnswer(connection, userIdx, pageSize, offset) {
+    const params = [userIdx, pageSize, offset];
     const selectAnswerQuery = `
         select answerIdx, User.userIdx, nickname as userNickname, profImg as userProfImg, answerContents,
                date_format(Answer.updatedAt, '%y.%m.%d') as answerDate, isRead
         from Answer join Diary on Diary.diaryIdx=Answer.diaryIdx
                     join User on Diary.userIdx = User.userIdx
-        where answerUserIdx=? order by Answer.updatedAt;
+        where answerUserIdx=? and Answer.status='ACTIVE' order by Answer.updatedAt  limit ? offset ?;
+                `;
+    const [diaryInfo] = await connection.query(selectAnswerQuery, params);
+    return diaryInfo;
+}
+
+async function selectAllAnswer(connection, userIdx) {
+    const selectAnswerQuery = `
+        select answerIdx
+        from Answer join Diary on Diary.diaryIdx=Answer.diaryIdx
+        where answerUserIdx=? and Answer.status='ACTIVE' order by Answer.updatedAt;
                 `;
     const [diaryInfo] = await connection.query(selectAnswerQuery, userIdx);
     return diaryInfo;
@@ -213,5 +236,5 @@ module.exports = {
     selectMonthDiary, selectDiary, selectDiaryAnswer, selectShareList, selectShareDiary,
     insertDiary, updateDiaryStatus, checkUserExists, checkDiaryExists, selectAnswer,
     selectDiaryDetail, selectAnswerDetail, insertAnswer, selectRandUser, updateDiary,
-    insertShare, insertDiaryImg
+    insertShare, insertDiaryImg, selectAllShareList, selectAllAnswer
 };

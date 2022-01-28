@@ -12,32 +12,77 @@ const fs = require('fs');
 /**
  * API No. 12
  * API Name : 받은 일기 리스트 조회 API
- * [GET] /app/diarys/share
+ * [GET] /app/diarys/share?page=
  */
 exports.getSharedDiarys = async function (req, res) {
 
-    const sharedDiaryResult = await diaryProvider.retrieveSharedDiaryList();
-    return res.send(response(baseResponse.SUCCESS, sharedDiaryResult));
+    const userIdx = 1;
+    // 페이징 처리 (테스트 용으로 페이지 사이즈 3)
+    let page = req.query.page;
+    if (!page) page = 1;
+    console.log('page Num:' + page);
+    const pageSize = 3;
+    let pageNum = Number(page);
+    const offset = pageSize * pageNum - pageSize;
+    console.log('pageNum: ' + pageNum);
+    console.log('offset: ' + offset);
+
+    if (offset<0) return res.send(errResponse(baseResponse.PAGE_INVALID));
+
+    const shareDiary = await diaryProvider.retrieveAllShared(userIdx);
+    console.log(shareDiary);
+    if (shareDiary.length < offset) return res.send(errResponse(baseResponse.PAGE_INVALID_END));
+    const totalPage = Math.ceil(shareDiary.length/pageSize);
+    console.log('totalPage: ' + totalPage);
+
+
+    const sharedDiaryResult = await diaryProvider.retrieveSharedDiaryList(userIdx, pageSize, offset);
+
+    const pageInfo = {"curPage" : parseInt(page), "totalPage" : totalPage, "pageSize" : pageSize};
+    const result = {"page" : pageInfo, "diarys":sharedDiaryResult};
+    return res.send(response(baseResponse.SUCCESS, result));
 
 };
 
 /**
  * API No. 13
  * API Name : 받은 답장 리스트 조회 API
- * [GET] /app/diarys/answer
+ * [GET] /app/diarys/answer?page=
  */
 exports.getAnswerList = async function (req, res) {
     const userIdx = 1;
 
-    const answerResult = await diaryProvider.retrieveAnswerList(userIdx);
-    return res.send(response(baseResponse.SUCCESS, answerResult));
+    // 페이징 처리 (테스트 용으로 페이지 사이즈 3)
+    let page = req.query.page;
+    if (!page) page = 1;
+    console.log('page Num:' + page);
+    const pageSize = 3;
+    let pageNum = Number(page);
+    const offset = pageSize * pageNum - pageSize;
+    console.log('pageNum: ' + pageNum);
+    console.log('offset: ' + offset);
+
+    if (offset<0) return res.send(errResponse(baseResponse.PAGE_INVALID));
+
+    const answers = await diaryProvider.retrieveAllAnswer(userIdx);
+    console.log(answers);
+    console.log('length:' + answers.length);
+    if (answers.length < offset) return res.send(errResponse(baseResponse.PAGE_INVALID_END));
+    const totalPage = Math.ceil(answers.length/pageSize);
+    console.log('totalPage: ' + totalPage);
+
+    const answerResult = await diaryProvider.retrieveAnswerList(userIdx, pageSize, offset);
+
+    const pageInfo = {"curPage" : parseInt(page), "totalPage" : totalPage, "pageSize" : pageSize};
+    const result = {"page" : pageInfo, "answers":answerResult};
+    return res.send(response(baseResponse.SUCCESS, result));
 
 };
 
 /**
  * API No. 14
  * API Name : 받은 일기 조회 API
- * [GET] /app/diarys/share/:diaryIdx
+ * [GET] /app/diarys/share/:diaryIdx?page=
  */
 exports.getSharedDiaryDetail = async function (req, res) {
 

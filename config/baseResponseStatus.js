@@ -60,6 +60,8 @@ module.exports = {
     ANSWER_USERIDX_INVALID : { "isSuccess": false, "code": 5009, "message": "유저를 다시 확인해주세요."},
     ANSWER_DIARY_NOT_EXIST : { "isSuccess": false, "code": 5010, "message": "답장이 없습니다. 다시 확인해주세요."},
     DIARY_S3_ERROR : { "isSuccess": false, "code": 5011, "message": "이미지 업로드에 실패하였습니다."},
+    PAGE_INVALID : { "isSuccess": false, "code": 5012, "message": "페이지 값을 다시 확인해주세요."},
+    PAGE_INVALID_END : { "isSuccess": false, "code": 5013, "message": "더이상 존재하지 않는 페이지 값입니다."},
 
     // 6000번 소연
 
