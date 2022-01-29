@@ -16,18 +16,15 @@ module.exports = function(app){
     app.get('/app/users/:userIdx', user.getUserById);
 
     // 7. 탈퇴하기 API
-    app.patch('/app/users/:useIdx/status', user.patchUsersStatus);
+    app.patch('/app/users/:userIdx/status', user.patchUsersStatus);
 
     // 9. 받은 일기 알림 설정
     app.patch('/app/users/:userIdx/push/diary', user.patchDiaryPush);
 
-    /*
     // 10. 받은 답장 알림 설정
-    app.patch('/app/users/push/answer', user.patchPushAnswer);
+    app.patch('/app/users/:userIdx/push/answer', user.patchPushAnswer);
 
-    // 10. 받은 답장 알림 설정
-    app.patch('/app/users/push/chat', user.patchPushChat);*/
-
-
+    // 11. 받은 채팅 알림 설정
+    app.patch('/app/users/:userIdx/push/chat', user.patchPushChat);
 
 };
