@@ -4,6 +4,7 @@ const userService = require("../../app/User/userService");
 const baseResponse = require("../../../config/baseResponseStatus");
 const {response, errResponse} = require("../../../config/response");
 
+
 /**
  * API No. 0
  * API Name : 테스트 API
@@ -19,26 +20,19 @@ exports.getTest = async function (req, res) {
  * [POST] /app/users
  */
 exports.postUsers = async function (req, res) {
-
     /**
      * Body: nickname, birthYear, gender
      */
     const {nickname, birthYear, gender} = req.body;
 
     // 빈 값 체크
-    if (!nickname)
-        return res.send(response(baseResponse.USER_USERID_EMPTY));
+    if (!nickname) return res.send(response(baseResponse.USER_NICKNAME_EMPTY));
+    if (!birthYear) return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
+    if (!gender) return res.send(response(baseResponse.USER_GENDER_EMPTY));
 
-    if (!birthYear)
-        return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
-
-    if (!gender)
-        return res.send(response(baseResponse.USER_GENDER_EMPTY));
     //길이 체크
-    if (nickname.length > 45)
-        return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH))
+    if (nickname.length > 20) return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
 
-    // createUser 함수 실행을 통한 결과 값을 signUpResponse에 저장
     const signUpResponse = await userService.createUser(
         nickname,
         birthYear,
@@ -49,23 +43,26 @@ exports.postUsers = async function (req, res) {
     return res.send(signUpResponse);
 };
 
+
 /**
  * API No. 5
  * API Name : 회원 정보 수정 API + JWT + Validation
  * [PATCH] /app/users/:userIdx
  * path variable : userIdx
- * body : nickname, birthYear, gender
+ * body : nickname, birthYear, gender, setAge
  */
 exports.patchUsers = async function (req, res) {
 
-
     const userIdx = req.params.userIdx;
-    const {nickname,birthYear,gender} = req.body;
+    const {nickname, birthYear, gender, setAge} = req.body; //age 추가 ERD필요
 
-    // JWT는 이 후 주차에 다룰 내용
+    // 빈 값 체크
     if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
+    if (!birthYear) return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
+    if (!gender) return res.send(response(baseResponse.USER_GENDER_EMPTY));
+    if (nickname.length > 20) return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
 
-    const editUserInfo = await userService.editUser(userIdx, nickname, birthYear, gender);
+    const editUserInfo = await userService.editUser(nickname, birthYear, gender, setAge, userIdx);
     return res.send(editUserInfo);
 
 };
@@ -75,35 +72,16 @@ exports.patchUsers = async function (req, res) {
  * API No. 6
  * API Name : 특정 유저 조회 API
  * [GET] /app/users/:userIdx
+ * Path Variable: userIdx
  */
 exports.getUserById = async function (req, res) {
 
-    /**
-     * Path Variable: userIdx
-     */
     const userIdx = req.params.userIdx;
-    if (!userIdx) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
 
-    // userId를 통한 유저 검색 함수 호출 및 결과 저장
-    const userByUserIdx = await userProvider.retrieveUser(userIdx);
+    const userByUserIdx = await userProvider.userIdCheck(userIdx);
     return res.send(response(baseResponse.SUCCESS, userByUserIdx));
 };
 
-exports.patchUsers = async function (req, res) {
-
-
-    const userIdx = req.params.userIdx;
-    const nickname = req.body.nickname;
-    const birthYear = req.body.birthYear;
-    const age = req.body.age;
-    const gender = req.body.gender;
-
-
-    if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
-    const editUserInfo = await userService.editUser(nickname, birthYear, gender,userIdx);
-    return res.send(editUserInfo);
-
-};
 
 /**
  * API No. 7
@@ -114,14 +92,11 @@ exports.patchUsers = async function (req, res) {
  */
 exports.patchUsersStatus = async function (req, res) {
 
-
     const userIdx = req.params.userIdx;
     const status = req.body.status;
 
-
-
     if (!status) return res.send(errResponse(baseResponse.USER_STATUS_EMPTY));
-    const editUserStatus = await userService.editUserStatus(userIdx,status);
+    const editUserStatus = await userService.editUserStatus(userIdx, status);
     return res.send(editUserStatus);
 
 };
@@ -135,13 +110,11 @@ exports.patchUsersStatus = async function (req, res) {
  */
 exports.patchDiaryPush = async function (req, res) {
 
-
     const userIdx = req.params.userIdx;
     const diaryPush = req.body.diaryPush;
 
-
-    // JWT는 이 후 주차에 다룰 내용
     if (!diaryPush) return res.send(errResponse(baseResponse.USER_DIARY_PUSH_EMPTY));
+    if (!userIdx) return res.sane(errResponse(baseResponse.USER_USERID_EMPTY));
 
     const editDiaryPush = await userService.editDiaryPush(userIdx, diaryPush);
     return res.send(editDiaryPush);
@@ -156,10 +129,8 @@ exports.patchDiaryPush = async function (req, res) {
  */
 exports.patchPushAnswer = async function (req, res) {
 
-
     const userIdx = req.params.userIdx;
     const answerPush = req.body.answerPush;
-
 
     if (!answerPush) return res.send(errResponse(baseResponse.USER_ANSWER_PUSH_EMPTY));
 
@@ -174,13 +145,10 @@ exports.patchPushAnswer = async function (req, res) {
  * path variable : userIdx, chat
  * body : chatPush
  */
-
 exports.patchPushChat = async function (req, res) {
-
 
     const userIdx = req.params.userIdx;
     const chatPush = req.body.chatPush;
-
 
     if (!chatPush) return res.send(errResponse(baseResponse.USER_CHAT_PUSH_EMPTY));
 
