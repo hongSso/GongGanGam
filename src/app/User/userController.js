@@ -4,7 +4,6 @@ const userService = require("../../app/User/userService");
 const baseResponse = require("../../../config/baseResponseStatus");
 const {response, errResponse} = require("../../../config/response");
 
-
 /**
  * API No. 0
  * API Name : 테스트 API
@@ -20,6 +19,7 @@ exports.getTest = async function (req, res) {
  * [POST] /app/users
  */
 exports.postUsers = async function (req, res) {
+
     /**
      * Body: nickname, birthYear, gender
      */
@@ -33,6 +33,7 @@ exports.postUsers = async function (req, res) {
     //길이 체크
     if (nickname.length > 20) return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
 
+    // createUser 함수 실행을 통한 결과 값을 signUpResponse에 저장
     const signUpResponse = await userService.createUser(
         nickname,
         birthYear,
@@ -42,7 +43,6 @@ exports.postUsers = async function (req, res) {
     // signUpResponse 값을 json으로 전달
     return res.send(signUpResponse);
 };
-
 
 /**
  * API No. 5
@@ -54,7 +54,7 @@ exports.postUsers = async function (req, res) {
 exports.patchUsers = async function (req, res) {
 
     const userIdx = req.params.userIdx;
-    const {nickname, birthYear, gender, setAge} = req.body; //age 추가 ERD필요
+    const {nickname, birthYear, gender, setAge} = req.body;
 
     // 빈 값 체크
     if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
@@ -92,8 +92,11 @@ exports.getUserById = async function (req, res) {
  */
 exports.patchUsersStatus = async function (req, res) {
 
+
     const userIdx = req.params.userIdx;
     const status = req.body.status;
+
+
 
     if (!status) return res.send(errResponse(baseResponse.USER_STATUS_EMPTY));
     const editUserStatus = await userService.editUserStatus(userIdx, status);
@@ -145,10 +148,13 @@ exports.patchPushAnswer = async function (req, res) {
  * path variable : userIdx, chat
  * body : chatPush
  */
+
 exports.patchPushChat = async function (req, res) {
+
 
     const userIdx = req.params.userIdx;
     const chatPush = req.body.chatPush;
+
 
     if (!chatPush) return res.send(errResponse(baseResponse.USER_CHAT_PUSH_EMPTY));
 

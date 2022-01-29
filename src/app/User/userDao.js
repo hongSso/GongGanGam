@@ -1,7 +1,5 @@
 
 // 유저 생성
-//const {USER_STATUS_EMPTY} = require("./baseResponseStatus");
-
 async function insertUserInfo(connection, insertUserInfoParams) {
   const insertUserInfoQuery = `
         INSERT INTO User(nickname, birthYear, gender)
@@ -41,7 +39,7 @@ async function selectUserId(connection, userIdx) {
   const selectUserIdQuery = `
                  SELECT  nickname, birthYear, diaryPush, answerPush, chatPush, profImg
                  FROM User
-                 LEFT JOIN Push ON Push.userIdx=User.userIdx
+                 LEFT JOIN Push ON Push.useridx=User.useridx
                  WHERE User.userIdx = ?;
                  `;
   const [userRow] = await connection.query(selectUserIdQuery, userIdx);
@@ -78,30 +76,21 @@ async function selectUserAccount(connection, email) {
 }
 
 
-async function updateUserInfo(connection,nickname, birthYear, gender, setAge, userIdx) {
+async function updateUserInfo(connection,nickname, birthYear, gender,userIdx ) {
   const updateUserQuery = `
     UPDATE User
-    SET nickname=?, birthYear=?, gender=?, setAge=?
+    SET nickname=?, birthYear=?, gender=?
     WHERE userIdx = ?;`;
-  const updateUserRow = await connection.query(updateUserQuery, [nickname, birthYear, gender, setAge, userIdx]);
+  const updateUserRow = await connection.query(updateUserQuery, [nickname,birthYear, gender, userIdx]);
   return updateUserRow[0];
-}
-
-async function selectUserStatus(connection, userIdx){
-  const selectUserStatusQuery = `
-    SELECT status
-    FROM User
-    WHERE userIdx=?;`;
-  const [selectStatusRow] = await connection.query(selectUserStatusQuery,userIdx);
-  return selectStatusRow;
 }
 
 async function updateUserStatus(connection,  userIdx, status) {
   const updateUserStatusQuery = `
     UPDATE User
-    SET status = ?
+    SET status = 'INACTIVE'
     WHERE userIdx = ?;`;
-  const updateUserStatusRow = await connection.query(updateUserStatusQuery, ['INACTIVE', userIdx]);
+  const updateUserStatusRow = await connection.query(updateUserStatusQuery, status, userIdx);
   return updateUserStatusRow[0];
 }
 
@@ -145,5 +134,4 @@ module.exports = {
   updateDiaryPush,
   updateAnswerPush,
   updateChatPush,
-  selectUserStatus,
 };
