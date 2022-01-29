@@ -41,7 +41,7 @@ async function selectUserId(connection, userIdx) {
   const selectUserIdQuery = `
                  SELECT  nickname, birthYear, diaryPush, answerPush, chatPush, profImg
                  FROM User
-                 LEFT JOIN Push ON Push.useridx=User.useridx
+                 LEFT JOIN Push ON Push.userIdx=User.userIdx
                  WHERE User.userIdx = ?;
                  `;
   const [userRow] = await connection.query(selectUserIdQuery, userIdx);
@@ -78,12 +78,12 @@ async function selectUserAccount(connection, email) {
 }
 
 
-async function updateUserInfo(connection,nickname, birthYear, gender,userIdx ) {
+async function updateUserInfo(connection,nickname, birthYear, gender, setAge, userIdx) {
   const updateUserQuery = `
     UPDATE User
-    SET nickname=?, birthYear=?, gender=?
+    SET nickname=?, birthYear=?, gender=?, setAge=?
     WHERE userIdx = ?;`;
-  const updateUserRow = await connection.query(updateUserQuery, [nickname,birthYear, gender, userIdx]);
+  const updateUserRow = await connection.query(updateUserQuery, [nickname, birthYear, gender, setAge, userIdx]);
   return updateUserRow[0];
 }
 
@@ -93,7 +93,6 @@ async function selectUserStatus(connection, userIdx){
     FROM User
     WHERE userIdx=?;`;
   const [selectStatusRow] = await connection.query(selectUserStatusQuery,userIdx);
-  console.log(selectStatusRow);
   return selectStatusRow;
 }
 

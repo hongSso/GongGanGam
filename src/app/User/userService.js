@@ -37,22 +37,20 @@ exports.createUser = async function (nickname, birthYear, gender) {
 };
 
 //05. 회원 정보 수정
-exports.editUser = async function ( nickname, birthYear, gender, userIdx) {
+exports.editUser = async function ( nickname, birthYear, gender, setAge, userIdx) {
     try {
-        console.log(nickname, birthYear, gender,userIdx);
         const connection = await pool.getConnection(async (conn) => conn);
 
-        //닉네임 중복 방지
-        const userNicknameRows = await userProvider.userNicknameCheck(nickname);
-        if (userNicknameRows.length > 0)
+        //닉네임 중복 방지 & 동일 유저가 같은 이름으로 수정할 때
+        const userNicknameRows = await userProvider.userIdCheck(userIdx);
+        if (userNicknameRows[0].nickname!==nickname && userNicknameRows.length > 0)
             return errResponse(baseResponse.SIGNUP_REDUNDANT_NICKNAME);
 
         //회원 존재 확인
-        const userIdRows = await userProvider.userIdCheck(userIdx);
-        if (userIdRows.length < 1)
+        if (userNicknameRows.length < 1)
             return errResponse(baseResponse.USER_USERID_NOT_EXIST);
 
-        const editUserResult = await userDao.updateUserInfo(connection, nickname, birthYear, gender,userIdx)
+        const editUserResult = await userDao.updateUserInfo(connection, nickname, birthYear, gender, setAge, userIdx)
         connection.release();
         return response(baseResponse.SUCCESS);
 
@@ -65,7 +63,6 @@ exports.editUser = async function ( nickname, birthYear, gender, userIdx) {
 //07. 탈퇴하기
 exports.editUserStatus = async function (userIdx, status) {
     try {
-        console.log(userIdx, status);
         const connection = await pool.getConnection(async (conn) => conn);
 
         //회원 존재 확인
@@ -74,7 +71,6 @@ exports.editUserStatus = async function (userIdx, status) {
             return errResponse(baseResponse.USER_USERID_NOT_EXIST);
 
         const userStatus = await userDao.selectUserStatus(connection, userIdx);
-        console.log(userStatus);
         if(userStatus[0].status==status) return errResponse(baseResponse.USER_STATUS_ALREADY_INACTIVE);
 
         const editStatusResult = await userDao.updateUserStatus(connection, userIdx, status);
@@ -91,7 +87,6 @@ exports.editUserStatus = async function (userIdx, status) {
 //09.받은 일기 알림 설정
 exports.editDiaryPush= async function (userIdx, diaryPush) {
     try {
-        console.log(userIdx, diaryPush);
         const connection = await pool.getConnection(async (conn) => conn);
 
         //회원 존재 확인
@@ -112,7 +107,6 @@ exports.editDiaryPush= async function (userIdx, diaryPush) {
 //10. 받은 답장 알림 설정
 exports.editAnswerPush = async function (userIdx, answerPush) {
     try {
-        console.log(userIdx, answerPush);
         const connection = await pool.getConnection(async (conn) => conn);
 
         //회원 존재 확인
@@ -134,7 +128,6 @@ exports.editAnswerPush = async function (userIdx, answerPush) {
 //11. 채팅 알림 설정
 exports.editChatPush = async function (userIdx, chatPush) {
     try {
-        console.log(userIdx, chatPush);
         const connection = await pool.getConnection(async (conn) => conn);
 
         //회원 존재 확인

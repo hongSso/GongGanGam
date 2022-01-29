@@ -26,17 +26,12 @@ exports.postUsers = async function (req, res) {
     const {nickname, birthYear, gender} = req.body;
 
     // 빈 값 체크
-    if (!nickname)
-        return res.send(response(baseResponse.USER_NICKNAME_EMPTY));
+    if (!nickname) return res.send(response(baseResponse.USER_NICKNAME_EMPTY));
+    if (!birthYear) return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
+    if (!gender) return res.send(response(baseResponse.USER_GENDER_EMPTY));
 
-    if (!birthYear)
-        return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
-
-    if (!gender)
-        return res.send(response(baseResponse.USER_GENDER_EMPTY));
     //길이 체크
-    if (nickname.length > 20)
-        return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH))
+    if (nickname.length > 20) return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
 
     const signUpResponse = await userService.createUser(
         nickname,
@@ -54,20 +49,20 @@ exports.postUsers = async function (req, res) {
  * API Name : 회원 정보 수정 API + JWT + Validation
  * [PATCH] /app/users/:userIdx
  * path variable : userIdx
- * body : nickname, birthYear, gender
+ * body : nickname, birthYear, gender, setAge
  */
 exports.patchUsers = async function (req, res) {
 
-
     const userIdx = req.params.userIdx;
-    const {nickname,birthYear,gender} = req.body; //age 추가 ERD필요
+    const {nickname, birthYear, gender, setAge} = req.body; //age 추가 ERD필요
 
+    // 빈 값 체크
     if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
     if (!birthYear) return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
     if (!gender) return res.send(response(baseResponse.USER_GENDER_EMPTY));
-    if (nickname.length > 20) return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH))
+    if (nickname.length > 20) return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
 
-    const editUserInfo = await userService.editUser(nickname, birthYear, gender, userIdx);
+    const editUserInfo = await userService.editUser(nickname, birthYear, gender, setAge, userIdx);
     return res.send(editUserInfo);
 
 };
@@ -77,12 +72,10 @@ exports.patchUsers = async function (req, res) {
  * API No. 6
  * API Name : 특정 유저 조회 API
  * [GET] /app/users/:userIdx
+ * Path Variable: userIdx
  */
 exports.getUserById = async function (req, res) {
 
-    /**
-     * Path Variable: userIdx
-     */
     const userIdx = req.params.userIdx;
 
     const userByUserIdx = await userProvider.userIdCheck(userIdx);
@@ -98,7 +91,6 @@ exports.getUserById = async function (req, res) {
  * body : status
  */
 exports.patchUsersStatus = async function (req, res) {
-
 
     const userIdx = req.params.userIdx;
     const status = req.body.status;
@@ -118,10 +110,8 @@ exports.patchUsersStatus = async function (req, res) {
  */
 exports.patchDiaryPush = async function (req, res) {
 
-
     const userIdx = req.params.userIdx;
     const diaryPush = req.body.diaryPush;
-
 
     if (!diaryPush) return res.send(errResponse(baseResponse.USER_DIARY_PUSH_EMPTY));
     if (!userIdx) return res.sane(errResponse(baseResponse.USER_USERID_EMPTY));
@@ -139,10 +129,8 @@ exports.patchDiaryPush = async function (req, res) {
  */
 exports.patchPushAnswer = async function (req, res) {
 
-
     const userIdx = req.params.userIdx;
     const answerPush = req.body.answerPush;
-
 
     if (!answerPush) return res.send(errResponse(baseResponse.USER_ANSWER_PUSH_EMPTY));
 
@@ -157,13 +145,10 @@ exports.patchPushAnswer = async function (req, res) {
  * path variable : userIdx, chat
  * body : chatPush
  */
-
 exports.patchPushChat = async function (req, res) {
-
 
     const userIdx = req.params.userIdx;
     const chatPush = req.body.chatPush;
-
 
     if (!chatPush) return res.send(errResponse(baseResponse.USER_CHAT_PUSH_EMPTY));
 

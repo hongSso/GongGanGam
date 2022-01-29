@@ -10,6 +10,7 @@ exports.retrieveUser = async function (userIdx) {
   const connection = await pool.getConnection(async (conn) => conn);
   const userResult = await userDao.selectUserId(connection, userIdx);
   connection.release();
+
   return userResult[0];
 };
 
@@ -24,7 +25,6 @@ exports.userNicknameCheck = async function (nickname) {
 exports.userIdCheck = async function (userIdx) {
   const connection = await pool.getConnection(async (conn) => conn);
   const idCheckResult = await userDao.selectUserId(connection, userIdx);
-  connection.release();
 
   return idCheckResult;
 };
