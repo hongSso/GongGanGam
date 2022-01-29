@@ -3,6 +3,9 @@ const { logger } = require("../../../config/winston");
 
 const userDao = require("./userDao");
 
+const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+
 // Provider: Read 비즈니스 로직 처리
 
 
@@ -27,6 +30,20 @@ exports.userIdCheck = async function (userIdx) {
   const idCheckResult = await userDao.selectUserId(connection, userIdx);
 
   return idCheckResult;
+};
+
+exports.checkUserExist = async function (email, identification) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const userCheckResult = await userDao.selectUserCheck(connection, email, identification);
+
+  return userCheckResult;
+};
+
+exports.userEmailCheck = async function (email) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const emailCheckResult = await userDao.selectUserEmail(connection, email);
+
+  return emailCheckResult;
 };
 
 

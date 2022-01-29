@@ -62,6 +62,11 @@ module.exports = {
     DIARY_S3_ERROR : { "isSuccess": false, "code": 5011, "message": "이미지 업로드에 실패하였습니다."},
     PAGE_INVALID : { "isSuccess": false, "code": 5012, "message": "페이지 값을 다시 확인해주세요."},
     PAGE_INVALID_END : { "isSuccess": false, "code": 5013, "message": "더이상 존재하지 않는 페이지 값입니다."},
+    USER_EMAIL_EMPTY : { "isSuccess": false, "code": 5014, "message": "이메일을 입력해주세요."},
+    USER_IDENTIFICATION_EMPTY : { "isSuccess": false, "code": 5015, "message": "인증 번호를 입력해주세요."},
+    SIGNUP_ERROR : { "isSuccess": false, "code": 5016, "message": "회원가입에 실패하였습니다. 다시 시도해주세요."},
+    SIGNUP_EMAIL_EXISTS : { "isSuccess": false, "code": 5017, "message": "존재하는 이메일입니다."},
+    SIGNUP_USER_EXISTS : { "isSuccess": false, "code": 5018, "message": "존재하는 사용자입니다. 로그인해주세요."},
 
     // 6000번 소연
 

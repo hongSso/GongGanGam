@@ -4,6 +4,7 @@ const userService = require("../../app/User/userService");
 const baseResponse = require("../../../config/baseResponseStatus");
 const {response, errResponse} = require("../../../config/response");
 
+const regexEmail = require("regex-email");
 
 /**
  * API No. 0
@@ -23,20 +24,35 @@ exports.postUsers = async function (req, res) {
     /**
      * Body: nickname, birthYear, gender
      */
-    const {nickname, birthYear, gender} = req.body;
+    const {nickname, birthYear, gender, type, email, identification} = req.body;
 
     // 빈 값 체크
+    if (!email) return res.send(response(baseResponse.USER_EMAIL_EMPTY));
+    if (!identification) return res.send(response(baseResponse.USER_IDENTIFICATION_EMPTY));
     if (!nickname) return res.send(response(baseResponse.USER_NICKNAME_EMPTY));
-    if (!birthYear) return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
-    if (!gender) return res.send(response(baseResponse.USER_GENDER_EMPTY));
 
+    //if (!birthYear) return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
+    //if (!gender) return res.send(response(baseResponse.USER_GENDER_EMPTY));
     //길이 체크
     if (nickname.length > 20) return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
 
+    // 형식 체크 (by 정규표현식)
+    if (!regexEmail.test(email))
+        return res.send(response(baseResponse.SIGNUP_EMAIL_ERROR_TYPE));
+
+    const checkUser = await userProvider.checkUserExist(email, identification);
+    if (checkUser.length > 0) {
+        return res.send(response(baseResponse.SIGNUP_USER_EXISTS));
+    }
+
+    // 회원가입 처리
     const signUpResponse = await userService.createUser(
         nickname,
         birthYear,
-        gender
+        gender,
+        type,
+        email,
+        identification
     );
 
     // signUpResponse 값을 json으로 전달

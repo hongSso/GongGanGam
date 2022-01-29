@@ -4,8 +4,8 @@
 
 async function insertUserInfo(connection, insertUserInfoParams) {
   const insertUserInfoQuery = `
-        INSERT INTO User(nickname, birthYear, gender)
-        VALUES (?, ?, ?);
+        INSERT INTO User(nickname, birthYear, gender, type, email, accessToken)
+        VALUES (?, ?, ?, ?, ?, ?);
     `;
   const insertUserInfoRow = await connection.query(
       insertUserInfoQuery,
@@ -45,6 +45,29 @@ async function selectUserId(connection, userIdx) {
                  WHERE User.userIdx = ?;
                  `;
   const [userRow] = await connection.query(selectUserIdQuery, userIdx);
+  return userRow;
+}
+
+// email 회원 조회
+async function selectUserEmail(connection, email) {
+  const selectUserIdQuery = `
+    select userIdx
+    from User
+    where User.email=?; 
+                 `;
+  const [userRow] = await connection.query(selectUserIdQuery, email);
+  return userRow;
+}
+
+// 이메일, 식별값으로 사용자 존재하는지 확인
+async function selectUserCheck(connection, email, identification) {
+  const params = [email, identification]
+  const selectUserQuery = `
+    select userIdx, accessToken
+    from User
+    where User.email = ? and accessToken = ?;
+                 `;
+  const [userRow] = await connection.query(selectUserQuery, params);
   return userRow;
 }
 
@@ -115,4 +138,6 @@ module.exports = {
   updateAnswerPush,
   updateChatPush,
   selectUserStatus,
+  selectUserCheck,
+  selectUserEmail
 };

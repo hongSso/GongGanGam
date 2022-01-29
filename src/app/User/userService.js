@@ -15,20 +15,45 @@ const crypto = require("crypto");
 
 
 //04. 유저 생성
-exports.createUser = async function (nickname, birthYear, gender) {
+exports.createUser = async function (nickname, birthYear, gender, type, email, identification) {
     try {
-        const insertUserInfoParams = [nickname, birthYear, gender];
+
         const connection = await pool.getConnection(async (conn) => conn);
 
         //닉네임 중복 방지
         const userNicknameRows = await userProvider.userNicknameCheck(nickname);
         if (userNicknameRows.length > 0)
             return errResponse(baseResponse.SIGNUP_REDUNDANT_NICKNAME);
+        //이메일 중복 방지
+        const userEmailRows = await userProvider.userEmailCheck(email);
+        if (userEmailRows.length > 0)
+            return errResponse(baseResponse.SIGNUP_EMAIL_EXISTS);
+
+        // 비밀번호 암호화
+        // const hashedPassword = await crypto
+        //     .createHash("sha512")
+        //     .update(identification)
+        //     .digest("hex");
+
+        const insertUserInfoParams = [nickname, birthYear, gender,type, email,identification];
 
         const userNicknameResult = await userDao.insertUserInfo(connection, insertUserInfoParams);
         console.log(`추가된 회원 : ${userNicknameResult[0].insertId}`)
         connection.release();
-        return response(baseResponse.SUCCESS);
+
+        //토큰 생성 Service
+        let token = await jwt.sign(
+            {
+                userId: userNicknameResult[0].insertId,
+            }, // 토큰의 내용(payload)
+            secret_config.jwtsecret, // 비밀키
+            {
+                expiresIn: "365d",
+                subject: "userInfo",
+            } // 유효 기간 365일
+        );
+
+        return response(baseResponse.SUCCESS, {'userIdx': userNicknameResult[0].insertId, 'jwt': token});
 
     } catch (err) {
         logger.error(`App - createUser Service error\n: ${err.message}`);
