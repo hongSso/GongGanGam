@@ -67,6 +67,7 @@ exports.getAnswerList = async function (req, res) {
     const answers = await diaryProvider.retrieveAllAnswer(userIdx);
     console.log(answers);
     console.log('length:' + answers.length);
+    //페이지 끝났다는걸 표시해야할까..?
     if (answers.length < offset) return res.send(errResponse(baseResponse.PAGE_INVALID_END));
     const totalPage = Math.ceil(answers.length/pageSize);
     console.log('totalPage: ' + totalPage);
@@ -212,7 +213,7 @@ exports.postDiary = async function (req, res) {
     else {
         const img = req.files.uploadImg;
         console.log(img)
-        var bucketName = 'usermodel'
+        var bucketName = 'gonggangam-bucket'
 
         const s3 = new AWS.S3({
             accessKeyId: s3Client.accessid,
@@ -222,7 +223,7 @@ exports.postDiary = async function (req, res) {
         });
 
         const params = {
-            Bucket: 'usermodel',
+            Bucket: 'gonggangam-bucket',
             Key: img.name,
             Body: img.data
         };
