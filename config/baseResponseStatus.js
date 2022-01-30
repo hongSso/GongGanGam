@@ -67,6 +67,7 @@ module.exports = {
     SIGNUP_ERROR : { "isSuccess": false, "code": 5016, "message": "회원가입에 실패하였습니다. 다시 시도해주세요."},
     SIGNUP_EMAIL_EXISTS : { "isSuccess": false, "code": 5017, "message": "존재하는 이메일입니다."},
     SIGNUP_USER_EXISTS : { "isSuccess": false, "code": 5018, "message": "존재하는 사용자입니다. 로그인해주세요."},
+    DIARYSHARE_USER_INVALID : { "isSuccess": false, "code": 5018, "message": "조회할 수 없는 다이어리입니다."},
 
     // 6000번 소연
     USER_BIRTHYEAR_EMPTY: {"isSuccess": false, "code": 6000, "message": "출생년도 값을 입력해주세요."},

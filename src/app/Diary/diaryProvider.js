@@ -118,3 +118,13 @@ exports.checkDiary = async function (diaryIdx) {
 
     return diary;
 };
+
+exports.checkDiaryShareUser = async function (diaryIdx, userIdx) {
+    const params = [diaryIdx, userIdx];
+    const connection = await pool.getConnection(async (conn) => conn);
+    const diary = await diaryDao.checkDiaryShareUser(connection, params);
+
+    connection.release();
+
+    return diary;
+};

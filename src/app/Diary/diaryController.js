@@ -16,7 +16,10 @@ const fs = require('fs');
  */
 exports.getSharedDiarys = async function (req, res) {
 
-    const userIdx = 1;
+    //const userIdx = 1;
+    const userIdx = req.verifiedToken.userId;
+
+    console.log('userIdx: ' + userIdx)
     // 페이징 처리 (테스트 용으로 페이지 사이즈 3)
     let page = req.query.page;
     if (!page) page = 1;
@@ -50,7 +53,10 @@ exports.getSharedDiarys = async function (req, res) {
  * [GET] /app/diarys/answer?page=
  */
 exports.getAnswerList = async function (req, res) {
-    const userIdx = 1;
+    //const userIdx = 1;
+    const userIdx = req.verifiedToken.userId;
+
+    console.log('userIdx: ' + userIdx)
 
     // 페이징 처리 (테스트 용으로 페이지 사이즈 3)
     let page = req.query.page;
@@ -83,15 +89,27 @@ exports.getAnswerList = async function (req, res) {
 /**
  * API No. 14
  * API Name : 받은 일기 조회 API
- * [GET] /app/diarys/share/:diaryIdx?page=
+ * [GET] /app/diarys/share/:diaryIdx
  */
 exports.getSharedDiaryDetail = async function (req, res) {
+
+    const userIdx = req.verifiedToken.userId;
+
+    console.log('userIdx: ' + userIdx)
 
     const diaryIdx = req.params.diaryIdx;
 
     if (!diaryIdx) return res.send(errResponse(baseResponse.DIARY_DIARYIDX_EMPTY));
+    // 조회한 다이어리가 자기에게 온 공유인지 확인
+    const checkDiaryShareUser = await diaryProvider.checkDiaryShareUser(diaryIdx, userIdx);
+    if (checkDiaryShareUser.length<1) return res.send(errResponse(baseResponse.DIARYSHARE_USER_INVALID));
 
     const sharedDiaryResult = await diaryProvider.retrieveSharedDiary(diaryIdx);
+    // 확인한 다이어리 업데이트
+    const diaryCheckResult = await diaryService.updateDiaryIsRead(diaryIdx);
+    if (diaryCheckResult !== 1) return res.send(diaryCheckResult);
+    
+    // 존재하지 않는 다이어리 확인
     if (sharedDiaryResult.length<1) return res.send(errResponse(baseResponse.DIARY_DIARYIDX_NOT_EXIST));
     return res.send(response(baseResponse.SUCCESS, sharedDiaryResult));
 
@@ -104,8 +122,12 @@ exports.getSharedDiaryDetail = async function (req, res) {
  */
 exports.getAnswer = async function (req, res) {
 
+    const userIdx = req.verifiedToken.userId;
+
+    console.log('userIdx: ' + userIdx)
+
     const diaryIdx = req.params.diaryIdx;
-    const userIdx = 1;
+    //const userIdx = 1;
 
     if (!diaryIdx) return res.send(errResponse(baseResponse.DIARY_DIARYIDX_EMPTY));
     // 존재하지 않는 유저인지 확인
@@ -136,6 +158,9 @@ exports.getDiarys = async function (req, res) {
      */
     const year = req.query.year;
     const month = req.query.month;
+    const userIdx = req.verifiedToken.userId;
+
+    console.log('userIdx: ' + userIdx);
 
     if (!year) return res.send(errResponse(baseResponse.DIARY_YEAR_EMPTY));
     if (!month) return res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY));
@@ -160,6 +185,10 @@ exports.getDiaryDetail = async function (req, res) {
     const year = req.query.year;
     const month = req.query.month;
     const day = req.query.day;
+    const userIdx = req.verifiedToken.userId;
+
+    console.log('userIdx: ' + userIdx)
+
 
     if (!year) return res.send(errResponse(baseResponse.DIARY_YEAR_EMPTY));
     if (!month) return res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY));
@@ -185,7 +214,10 @@ exports.postDiary = async function (req, res) {
     const file = req.files;
     console.log(file);
 
-    const userIdx = 1;
+    //const userIdx = 1;
+    const userIdx = req.verifiedToken.userId;
+
+    console.log('userIdx: ' + userIdx)
 
     if (!year) return res.send(errResponse(baseResponse.DIARY_YEAR_EMPTY));
     if (!month) return res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY));
@@ -210,10 +242,11 @@ exports.postDiary = async function (req, res) {
         const postdiaryResponse = await diaryService.createDiary(userIdx, date, emoji, content, shareAgree);
         return res.send(postdiaryResponse);
     }
+    // 파일 잇는 경우
     else {
         const img = req.files.uploadImg;
         console.log(img)
-        var bucketName = 'gonggangam-bucket'
+        let bucketName = 'gonggangam-bucket'
 
         const s3 = new AWS.S3({
             accessKeyId: s3Client.accessid,
@@ -227,7 +260,7 @@ exports.postDiary = async function (req, res) {
             Key: img.name,
             Body: img.data
         };
-        s3.upload(params, function(err, data) {
+        s3.upload(params, async function(err, data) {
             if (err) {
                 //throw err;
                 console.log('error')
@@ -236,9 +269,8 @@ exports.postDiary = async function (req, res) {
             } else {
                 console.log(`File uploaded successfully.`);
                 console.log(data.Location)
-                const diaryResponse = diaryService.createDiaryImg(userIdx, date, emoji, content, shareAgree, data.Location);
-                //return res.send(diaryResponse);
-                return res.send(response(baseResponse.SUCCESS));
+                const diaryResponse = await diaryService.createDiaryImg(userIdx, date, emoji, content, shareAgree, data.Location);
+                return res.send(diaryResponse);
 
             }
         });
@@ -258,7 +290,10 @@ exports.postAnswer = async function (req, res) {
 
     const {content, diaryIdx} = req.body;
 
-    const userIdx = 1;
+    //const userIdx = 1;
+    const userIdx = req.verifiedToken.userId;
+
+    console.log('userIdx: ' + userIdx)
 
     const postAnswerResponse = await diaryService.createAnswer(userIdx, diaryIdx, content);
     return res.send(postAnswerResponse);
@@ -277,7 +312,10 @@ exports.patchDiaryStatus = async function (req, res) {
      */
 
     const diaryIdx = req.params.diaryIdx;
-    const userIdx = 1;
+    //const userIdx = 1;
+    const userIdx = req.verifiedToken.userId;
+
+    console.log('userIdx: ' + userIdx)
 
     const patchdiaryResponse = await diaryService.updateDiaryStatus(userIdx, diaryIdx);
     return res.send(patchdiaryResponse);
@@ -297,6 +335,9 @@ exports.patchDiary = async function (req, res) {
 
     const diaryIdx = req.params.diaryIdx;
     const {emoji, year, month, day, content, shareAgree} = req.body;
+    const userIdx = req.verifiedToken.userId;
+
+    console.log('userIdx: ' + userIdx)
 
     if (!year) return res.send(errResponse(baseResponse.DIARY_YEAR_EMPTY));
     if (!month) return res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY));
@@ -313,7 +354,7 @@ exports.patchDiary = async function (req, res) {
         if (day < 10) date = date + '-0' + day;
         else date = date + '-' + day;
     }
-    const userIdx = 1;
+    //const userIdx = 1;
 
     const patchdiaryResponse = await diaryService.updateDiary(diaryIdx, userIdx, date, emoji, content, shareAgree);
     return res.send(patchdiaryResponse);

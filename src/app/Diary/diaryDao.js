@@ -200,6 +200,17 @@ async function updateDiaryStatus(connection, diaryIdx) {
     return updateUserRow[0];
 }
 
+// 공유된 다이어리 읽은 상태 수정하기
+async function updateDiaryReadStatus(connection, diaryIdx) {
+    const params = ['T', diaryIdx]
+    const updateDiaryReadQuery = `
+        UPDATE DiaryShare 
+        SET isRead = ?
+        WHERE diaryIdx = ?;`;
+    const updateUserRow = await connection.query(updateDiaryReadQuery, params);
+    return updateUserRow[0];
+}
+
 // 다이어리 수정하기
 async function updateDiary(connection, params) {
     const updateReviewQuery = `
@@ -232,9 +243,21 @@ async function checkDiaryExists(connection, diaryIdx) {
     return diaryInfo;
 }
 
+// 존재하는 다이어리인지 확인
+async function checkDiaryShareUser(connection, params) {
+    const selectUserQuery = `
+        select diaryShareIdx
+        from DiaryShare
+        where diaryIdx=? and shareUserIdx=?;
+                `;
+    const [diaryInfo] = await connection.query(selectUserQuery, params);
+    return diaryInfo;
+}
+
 module.exports = {
     selectMonthDiary, selectDiary, selectDiaryAnswer, selectShareList, selectShareDiary,
     insertDiary, updateDiaryStatus, checkUserExists, checkDiaryExists, selectAnswer,
     selectDiaryDetail, selectAnswerDetail, insertAnswer, selectRandUser, updateDiary,
-    insertShare, insertDiaryImg, selectAllShareList, selectAllAnswer
+    insertShare, insertDiaryImg, selectAllShareList, selectAllAnswer, updateDiaryReadStatus,
+    checkDiaryShareUser,
 };
