@@ -69,5 +69,10 @@ module.exports = {
     SIGNUP_USER_EXISTS : { "isSuccess": false, "code": 5018, "message": "존재하는 사용자입니다. 로그인해주세요."},
 
     // 6000번 소연
-
+    USER_BIRTHYEAR_EMPTY: {"isSuccess": false, "code": 6000, "message": "출생년도 값을 입력해주세요."},
+    USER_GENDER_EMPTY: {"isSuccess": false, "code": 6001, "message": "성별을 입력해주세요."},
+    USER_DIARY_PUSH_EMPTY: {"isSuccess": false, "code": 6003, "message": "받은일기 알람 설정을 선택해주세요."},
+    USER_CHAT_PUSH_EMPTY : {"isSuccess": false, "code": 6004, "message": "채팅 알람 설정을 선택해주세요."},
+    //USER_NICKNAME_EMPTY : {"isSuccess": false, "code": 6005, "message": "닉네임을 입력해주세요."},
+    USER_STATUS_ALREADY_INACTIVE : {"isSuccess": false, "code": 6006, "message": "이미 탈퇴한 회원입니다."},
 }

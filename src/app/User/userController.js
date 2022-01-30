@@ -109,10 +109,8 @@ exports.getUserById = async function (req, res) {
 exports.patchUsersStatus = async function (req, res) {
 
     const userIdx = req.params.userIdx;
-    const status = req.body.status;
 
-    if (!status) return res.send(errResponse(baseResponse.USER_STATUS_EMPTY));
-    const editUserStatus = await userService.editUserStatus(userIdx, status);
+    const editUserStatus = await userService.editUserStatus(userIdx);
     return res.send(editUserStatus);
 
 };
@@ -130,7 +128,7 @@ exports.patchDiaryPush = async function (req, res) {
     const diaryPush = req.body.diaryPush;
 
     if (!diaryPush) return res.send(errResponse(baseResponse.USER_DIARY_PUSH_EMPTY));
-    if (!userIdx) return res.sane(errResponse(baseResponse.USER_USERID_EMPTY));
+    if (!userIdx) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
 
     const editDiaryPush = await userService.editDiaryPush(userIdx, diaryPush);
     return res.send(editDiaryPush);
@@ -150,7 +148,7 @@ exports.patchPushAnswer = async function (req, res) {
 
     if (!answerPush) return res.send(errResponse(baseResponse.USER_ANSWER_PUSH_EMPTY));
 
-    const editAnswerPush = await userService.editDiaryPush(userIdx, answerPush);
+    const editAnswerPush = await userService.editAnswerPush(userIdx, answerPush);
     return res.send(editAnswerPush);
 
 };

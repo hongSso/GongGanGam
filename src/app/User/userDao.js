@@ -90,7 +90,7 @@ async function selectUserStatus(connection, userIdx){
   return selectStatusRow;
 }
 
-async function updateUserStatus(connection,  userIdx, status) {
+async function updateUserStatus(connection,  userIdx) {
   const updateUserStatusQuery = `
     UPDATE User
     SET status = ?

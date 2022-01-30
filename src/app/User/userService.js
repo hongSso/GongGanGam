@@ -86,7 +86,7 @@ exports.editUser = async function ( nickname, birthYear, gender, setAge, userIdx
 }
 
 //07. 탈퇴하기
-exports.editUserStatus = async function (userIdx, status) {
+exports.editUserStatus = async function (userIdx) {
     try {
         const connection = await pool.getConnection(async (conn) => conn);
 
@@ -96,9 +96,9 @@ exports.editUserStatus = async function (userIdx, status) {
             return errResponse(baseResponse.USER_USERID_NOT_EXIST);
 
         const userStatus = await userDao.selectUserStatus(connection, userIdx);
-        if(userStatus[0].status==status) return errResponse(baseResponse.USER_STATUS_ALREADY_INACTIVE);
+        if(userStatus[0].status==='INACTIVE') return errResponse(baseResponse.USER_STATUS_ALREADY_INACTIVE);
 
-        const editStatusResult = await userDao.updateUserStatus(connection, userIdx, status);
+        const editStatusResult = await userDao.updateUserStatus(connection, userIdx);
         connection.release();
         return response(baseResponse.SUCCESS);
 
