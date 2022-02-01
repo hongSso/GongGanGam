@@ -4,8 +4,9 @@
 
 async function insertUserInfo(connection, insertUserInfoParams) {
   const insertUserInfoQuery = `
-        INSERT INTO User(nickname, birthYear, gender)
-        VALUES (?, ?, ?);
+        INSERT INTO User(nickname, birthYear, gender, type, email, accessToken)
+        VALUES (?, ?, ?, ?, ?, ?);
+        
     `;
   const insertUserInfoRow = await connection.query(
       insertUserInfoQuery,
@@ -13,6 +14,16 @@ async function insertUserInfo(connection, insertUserInfoParams) {
   );
 
   return insertUserInfoRow;
+}
+
+async function insertPush(connection, userIdx) {
+  const insertPushQuery = `
+        INSERT INTO Push(diaryPush, answerPush, chatPush, userIdx)
+        VALUES (?, ?, ?, ?);
+    `;
+  const insertPushRow = await connection.query(insertPushQuery, ['T','T','T', userIdx]);
+
+  return insertPushRow;
 }
 
 // 모든 유저 조회
@@ -39,13 +50,58 @@ async function selectUserNickname(connection, nickname) {
 // userId 회원 조회
 async function selectUserId(connection, userIdx) {
   const selectUserIdQuery = `
-                 SELECT  nickname, birthYear, diaryPush, answerPush, chatPush, profImg
+                 SELECT  nickname, birthYear, diaryPush, answerPush, chatPush, profImg, email
                  FROM User
-                 LEFT JOIN Push ON Push.userIdx=User.userIdx
+                 JOIN Push ON Push.userIdx=User.userIdx
                  WHERE User.userIdx = ?;
                  `;
   const [userRow] = await connection.query(selectUserIdQuery, userIdx);
   return userRow;
+}
+
+// email 회원 조회
+async function selectUserEmail(connection, email) {
+  const selectUserEmailQuery = `
+    select email, identification, nickname
+    from User
+    where User.email=?; 
+                 `;
+  const [userRow] = await connection.query(selectUserEmailQuery, email);
+  return userRow;
+}
+
+async function selectUserIdentification(connection, selectEmail) {
+  const selectUserIdentificationQuery = `
+    select identification
+    from User
+    where email = ?`;
+  const [userRow] = await connection.query(selectUserIdentificationQuery, selectEmail);
+  return userRow;
+}
+
+// 이메일, 식별값으로 사용자 존재하는지 확인
+async function selectUserCheck(connection, email, identification) {
+  const params = [email, identification]
+  const selectUserQuery = `
+    select userIdx, accessToken
+    from User
+    where User.email = ? and accessToken = ?;
+                 `;
+  const [userRow] = await connection.query(selectUserQuery, params);
+  return userRow;
+}
+
+// 유저 계정 상태 체크 (jwt 생성 위해 nickname 값도 가져온다.)
+async function selectUserAccount(connection, email) {
+  const selectUserAccountQuery = `
+        SELECT status, nickname, userIdx
+        FROM User
+        WHERE email = ?;`;
+  const selectUserAccountRow = await connection.query(
+      selectUserAccountQuery,
+      email
+  );
+  return selectUserAccountRow[0];
 }
 
 
@@ -115,4 +171,9 @@ module.exports = {
   updateAnswerPush,
   updateChatPush,
   selectUserStatus,
+  selectUserCheck,
+  selectUserEmail,
+  insertPush,
+  selectUserIdentification,
+  selectUserAccount,
 };

@@ -4,27 +4,30 @@ module.exports = function(app){
     const jwtMiddleware = require('../../../config/jwtMiddleware');
 
     // 0. 테스트 API
-    app.get('/app/test', user.getTest)
+    app.get('/app/test', user.getTest);
+
+    // 3. 로그인 API
+    app.post('/app/login', user.login);
 
     // 4. 유저 생성 (회원가입) API
     app.post('/app/users', user.postUsers);
 
     // 5. 회원 정보 수정 API
-    app.patch('/app/users/:userIdx', user.patchUsers);
+    app.patch('/app/users/:userIdx', jwtMiddleware, user.patchUsers);
 
     // 6. 특정 유저 조회 API
-    app.get('/app/users/:userIdx', user.getUserById);
+    app.get('/app/users/:userIdx', jwtMiddleware, user.getUserById);
 
     // 7. 탈퇴하기 API
-    app.patch('/app/users/:userIdx/status', user.patchUsersStatus);
+    app.patch('/app/users/:userIdx/status', jwtMiddleware, user.patchUsersStatus);
 
     // 9. 받은 일기 알림 설정
-    app.patch('/app/users/:userIdx/push/diary', user.patchDiaryPush);
+    app.patch('/app/users/:userIdx/push/diary', jwtMiddleware, user.patchDiaryPush);
 
     // 10. 받은 답장 알림 설정
-    app.patch('/app/users/:userIdx/push/answer', user.patchPushAnswer);
+    app.patch('/app/users/:userIdx/push/answer', jwtMiddleware, user.patchPushAnswer);
 
     // 11. 받은 채팅 알림 설정
-    app.patch('/app/users/:userIdx/push/chat', user.patchPushChat);
+    app.patch('/app/users/:userIdx/push/chat',jwtMiddleware,  user.patchPushChat);
 
 };
