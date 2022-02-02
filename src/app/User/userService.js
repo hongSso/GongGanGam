@@ -21,8 +21,8 @@ exports.postSignIn = async function (email, identification) {
 
         const selectEmail = emailRows[0].email; //email, nickname, identification
         console.log(selectEmail);
-        // 식별번호 확인
-        const identificationRows = await userProvider.userIdentificationCheck(selectEmail); //identification
+        // 식별번호 확인 (입력한 비밀번호를 암호화한 것과 DB에 저장된 비밀번호가 일치하는 지 확인함)
+        //const identificationRows = await userProvider.userIdentificationCheck(selectEmail); //identification
         console.log(emailRows[0].identification);
         if (identification !== emailRows[0].identification) {
             return errResponse(baseResponse.SIGNIN_IDENTIFICATION_WRONG);

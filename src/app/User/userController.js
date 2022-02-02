@@ -1,234 +1,87 @@
-const jwtMiddleware = require("../../../config/jwtMiddleware");
-const userProvider = require("../../app/User/userProvider");
-const userService = require("../../app/User/userService");
-const baseResponse = require("../../../config/baseResponseStatus");
-const {response, errResponse} = require("../../../config/response");
-const yearNow = require("date-utils");
-const regexEmail = require("regex-email");
+//Response로 보내줄 상태코드와 메세지 등을 이 파일에서 관리함
 
-/**
- * API No. 0
- * API Name : 테스트 API
- * [GET] /app/test
- */
-exports.getTest = async function (req, res) {
-    return res.send(response(baseResponse.SUCCESS))
+module.exports = {
+
+    // Success
+    SUCCESS: {"isSuccess": true, "code": 1000, "message": "성공"},
+
+    // Common
+    TOKEN_EMPTY: {"isSuccess": false, "code": 2000, "message": "JWT 토큰을 입력해주세요."},
+    TOKEN_VERIFICATION_FAILURE: {"isSuccess": false, "code": 3000, "message": "JWT 토큰 검증 실패"},
+    TOKEN_VERIFICATION_SUCCESS: {"isSuccess": true, "code": 1001, "message": "JWT 토큰 검증 성공"}, // ?
+
+    //Request error
+    SIGNUP_EMAIL_EMPTY: {"isSuccess": false, "code": 2001, "message": "이메일을 입력해주세요"},
+    SIGNUP_EMAIL_LENGTH: {"isSuccess": false, "code": 2002, "message": "이메일은 30자리 미만으로 입력해주세요."},
+    SIGNUP_EMAIL_ERROR_TYPE: {"isSuccess": false, "code": 2003, "message": "이메일을 형식을 정확하게 입력해주세요."},
+    SIGNUP_PASSWORD_EMPTY: {"isSuccess": false, "code": 2004, "message": "비밀번호를 입력 해주세요."},
+    SIGNUP_PASSWORD_LENGTH: {"isSuccess": false, "code": 2005, "message": "비밀번호는 6~20자리를 입력해주세요."},
+    SIGNUP_NICKNAME_EMPTY: {"isSuccess": false, "code": 2006, "message": "닉네임을 입력 해주세요."},
+    SIGNUP_NICKNAME_LENGTH: {"isSuccess": false, "code": 2007, "message": "닉네임은 최대 20자리를 입력해주세요."},
+
+    SIGNIN_EMAIL_EMPTY: {"isSuccess": false, "code": 2008, "message": "이메일을 입력해주세요"},
+    SIGNIN_EMAIL_LENGTH: {"isSuccess": false, "code": 2009, "message": "이메일은 30자리 미만으로 입력해주세요."},
+    SIGNIN_EMAIL_ERROR_TYPE: {"isSuccess": false, "code": 2010, "message": "이메일을 형식을 정확하게 입력해주세요."},
+    SIGNIN_PASSWORD_EMPTY: {"isSuccess": false, "code": 2011, "message": "비밀번호를 입력 해주세요."},
+
+    USER_USERID_EMPTY: {"isSuccess": false, "code": 2012, "message": "userId를 입력해주세요."},
+    USER_USERID_NOT_EXIST: {"isSuccess": false, "code": 2013, "message": "해당 회원이 존재하지 않습니다."},
+
+    USER_USEREMAIL_EMPTY: {"isSuccess": false, "code": 2014, "message": "이메일을 입력해주세요."},
+    USER_USEREMAIL_NOT_EXIST: {"isSuccess": false, "code": 2015, "message": "해당 이메일을 가진 회원이 존재하지 않습니다."},
+    USER_ID_NOT_MATCH: {"isSuccess": false, "code": 2016, "message": "유저 아이디 값을 확인해주세요"},
+    USER_NICKNAME_EMPTY: {"isSuccess": false, "code": 2017, "message": "변경할 닉네임 값을 입력해주세요"},
+
+    USER_STATUS_EMPTY: {"isSuccess": false, "code": 2018, "message": "회원 상태값을 입력해주세요"},
+
+    // Response error
+    SIGNUP_REDUNDANT_EMAIL: {"isSuccess": false, "code": 3001, "message": "중복된 이메일입니다."},
+    SIGNUP_REDUNDANT_NICKNAME: {"isSuccess": false, "code": 3002, "message": "중복된 닉네임입니다."},
+
+    SIGNIN_EMAIL_WRONG: {"isSuccess": false, "code": 3003, "message": "아이디가 잘못 되었습니다."},
+    SIGNIN_PASSWORD_WRONG: {"isSuccess": false, "code": 3004, "message": "비밀번호가 잘못 되었습니다."},
+    SIGNIN_INACTIVE_ACCOUNT: {"isSuccess": false, "code": 3005, "message": "비활성화 된 계정입니다. 고객센터에 문의해주세요."},
+    SIGNIN_WITHDRAWAL_ACCOUNT: {"isSuccess": false, "code": 3006, "message": "탈퇴 된 계정입니다. 고객센터에 문의해주세요."},
+
+    //Connection, Transaction 등의 서버 오류
+    DB_ERROR: {"isSuccess": false, "code": 4000, "message": "데이터 베이스 에러"},
+    SERVER_ERROR: {"isSuccess": false, "code": 4001, "message": "서버 에러"},
+
+
+    // 5000번대 수이
+    DIARY_YEAR_EMPTY : { "isSuccess": false, "code": 5001, "message": "연도를 입력해주세요."},
+    DIARY_MONTH_EMPTY : { "isSuccess": false, "code": 5002, "message": "달을 입력해주세요."},
+    DIARY_DAY_EMPTY : { "isSuccess": false, "code": 5003, "message": "날짜를 입력해주세요."},
+    DIARY_DIARYIDX_EMPTY : { "isSuccess": false, "code": 5004, "message": "diaryIdx를 입력해주세요."},
+    DIARY_DIARYIDX_NOT_EXIST : { "isSuccess": false, "code": 5005, "message": "존재하지 않는 다이어리입니다."},
+    USER_NOT_EXIST : { "isSuccess": false, "code": 5006, "message": "존재하지 않는 유저입니다."},
+    DIARY_USER_INVALID : { "isSuccess": false, "code": 5007, "message": "수정할 권한이 없는 유저입니다."},
+    ANSWER_ANSWERIDX_EMPTY : { "isSuccess": false, "code": 5008, "message": "answerIdx를 입력해주세요."},
+    ANSWER_USERIDX_INVALID : { "isSuccess": false, "code": 5009, "message": "유저를 다시 확인해주세요."},
+    ANSWER_DIARY_NOT_EXIST : { "isSuccess": false, "code": 5010, "message": "답장이 없습니다. 다시 확인해주세요."},
+    DIARY_S3_ERROR : { "isSuccess": false, "code": 5011, "message": "이미지 업로드에 실패하였습니다."},
+    PAGE_INVALID : { "isSuccess": false, "code": 5012, "message": "페이지 값을 다시 확인해주세요."},
+    PAGE_INVALID_END : { "isSuccess": false, "code": 5013, "message": "더이상 존재하지 않는 페이지 값입니다."},
+    USER_EMAIL_EMPTY : { "isSuccess": false, "code": 5014, "message": "이메일을 입력해주세요."},
+    USER_IDENTIFICATION_EMPTY : { "isSuccess": false, "code": 5015, "message": "인증 번호를 입력해주세요."},
+    SIGNUP_ERROR : { "isSuccess": false, "code": 5016, "message": "회원가입에 실패하였습니다. 다시 시도해주세요."},
+    SIGNUP_EMAIL_EXISTS : { "isSuccess": false, "code": 5017, "message": "존재하는 이메일입니다."},
+    SIGNUP_USER_EXISTS : { "isSuccess": false, "code": 5018, "message": "존재하는 사용자입니다. 로그인해주세요."},
+    // 6000번 소연
+    USER_BIRTHYEAR_EMPTY : {"isSuccess": false, "code": 6000, "message": "출생년도 값을 입력해주세요."},
+    USER_GENDER_EMPTY: {"isSuccess": false, "code": 6001, "message": "성별을 입력해주세요."},
+    USER_DIARY_PUSH_EMPTY : {"isSuccess": false, "code": 6002, "message": "받은 일기 알람 설정을 선택해주세요."},
+    USER_ANSWER_PUSH_EMPTY : {"isSuccess": false, "code": 6003, "message": "받은 답장 알람 설정을 선택해주세요."},
+    USER_CHAT_PUSH_EMPTY : {"isSuccess": false, "code": 6004, "message": "채팅 알림 설정을 선택해주세요."},
+    USER_NICKNAME_EMPTY : {"isSuccess": false, "code": 6005, "message": "닉네임을 입력해주세요."},
+    USER_STATUS_ALREADY_INACTIVE : {"isSuccess": false, "code": 6006, "message": "이미 탈퇴한 회원입니다."},
+    PUSH_DIARY_WRONG : {"isSuccess": false, "code": 6007, "message": "받은 일기 알림 설정이 잘못 되었습니다."},
+    PUSH_ANSWER_WRONG : {"isSuccess": false, "code": 6008, "message": "받은 답장 알림 설정이 잘못 되었습니다."},
+    PUSH_CHAT_WRONG : {"isSuccess": false, "code": 6009, "message": "채팅 알림 설정이 잘못 되었습니다."},
+    SIGNIN_IDENTIFICATION_WRONG : {"isSuccess": false, "code": 6010, "message": "식별번호가 잘못 되었습니다."},
+    USER_GENDER_WRONG : {"isSuccess": false, "code": 6011, "message": "성별 설정이 잘못 되었습니다."},
+    USER_SETAGE_WRONG : {"isSuccess": false, "code": 6012, "message": "연령대 지정 설정이 잘못 되었습니다."},
+    USER_BIRTHYEAR_NUMBER_WRONG : {"isSuccess": false, "code": 6013, "message": "출생년도는 4자리를 입력해주세요"},
+    USER_BIRTHYEAR_TIMR_WRONG : {"isSuccess": false, "code": 6014, "message": "출생년도가 올바르지 않습니다."},
+    USER_SETAGE_EMPTY : {"isSuccess": false, "code": 6015, "message": "연령대 지정 값을 입력해주세요."},
 }
-
-/**
- * API No. 3
- * API Name : 로그인 API
- * [POST] /app/login
- * body : email, identification
- */
-exports.login = async function (req, res) {
-
-    const { email, identification } = req.body;
-
-    const signInResponse = await userService.postSignIn(email, identification);
-
-    return res.send(signInResponse);
-}
-
-
-/**
- * API No. 4
- * API Name : 유저 생성 (회원가입) API
- * [POST] /app/users
- *body: nickname, birthYear, gender
- */
-exports.postUsers = async function (req, res) {
-
-    const {nickname, birthYear, gender, type, email, identification} = req.body;
-
-    // 빈 값 체크
-    if (!email) return res.send(response(baseResponse.USER_EMAIL_EMPTY));
-    if (!identification) return res.send(response(baseResponse.USER_IDENTIFICATION_EMPTY));
-    if (!nickname) return res.send(response(baseResponse.USER_NICKNAME_EMPTY));
-
-    //길이 체크
-    if (nickname.length > 20) return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
-
-    // 형식 체크 (by 정규표현식)
-    if (!regexEmail.test(email))
-        return res.send(response(baseResponse.SIGNUP_EMAIL_ERROR_TYPE));
-
-    const checkUser = await userProvider.checkUserExist(email, identification);
-    if (checkUser.length > 0) {
-        return res.send(response(baseResponse.SIGNUP_USER_EXISTS));
-    }
-
-    // 회원가입 처리
-    const signUpResponse = await userService.createUser(
-        nickname,
-        birthYear,
-        gender,
-        type,
-        email,
-        identification
-    );
-
-    // signUpResponse 값을 json으로 전달
-    return res.send(signUpResponse);
-};
-
-
-/**
- * API No. 5
- * API Name : 회원 정보 수정 API + JWT + Validation
- * [PATCH] /app/users/:userIdx
- * path variable : userIdx
- * body : nickname, birthYear, gender, setAge
- */
-exports.patchUsers = async function (req, res) {
-
-    const userIdFromJWT = req.verifiedToken.userIdx;
-
-    const userIdx = req.params.userIdx;
-    const {nickname, birthYear, gender, setAge} = req.body;
-    var today = new Date();
-    if (userIdFromJWT != userIdx) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
-    } else {
-        // 빈 값 체크
-        if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
-        if (nickname.length > 20) return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
-        if (!birthYear) return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
-        if (!gender) return res.send(response(baseResponse.USER_GENDER_EMPTY));
-        if (!setAge) return res.send(response(baseResponse.USER_SETAGE_EMPTY));
-
-        //1900~2022까지만 유저 생성되게 하고 싶은데,, 왜 안되지,,,
-        // if (birthYear <= 1900 && birthYear >= today.getFullYear()) return res.send(errResponse(baseResponse.USER_BIRTHYEAR_TIME_WRONG));
-        if (!(gender == 'M' || gender == 'F' || gender == 'N')) return res.send(errResponse(baseResponse.USER_GENDER_WRONG));
-        if (!(setAge == 'T' || setAge == 'F')) return res.send(errResponse(baseResponse.USER_SETAGE_WRONG));
-
-
-
-
-        const editUserInfo = await userService.editUser(nickname, birthYear, gender, setAge, userIdx);
-        return res.send(editUserInfo);
-    }
-};
-
-
-/**
- * API No. 6
- * API Name : 특정 유저 조회 API
- * [GET] /app/users/:userIdx
- * Path Variable: userIdx
- */
-exports.getUserById = async function (req, res) {
-
-    const userIdFromJWT = req.verifiedToken.userIdx;
-
-    const userIdx = req.params.userIdx;
-
-    if (userIdFromJWT != userIdx) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
-    } else {
-        const userByUserIdx = await userProvider.userIdCheck(userIdx);
-        return res.send(response(baseResponse.SUCCESS, userByUserIdx[0]));
-    }
-};
-
-
-/**
- * API No. 7
- * API Name : 탈퇴하기 API
- * [PATCH] /app/users/:userIdx/status
- * Path Variable : userIdx, status
- * body : status
- */
-exports.patchUsersStatus = async function (req, res) {
-
-    const userIdFromJWT = req.verifiedToken.userIdx;
-
-    const userIdx = req.params.userIdx;
-
-    if (userIdFromJWT != userIdx) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
-    } else {
-        if (!status) return res.send(errResponse(baseResponse.USER_STATUS_EMPTY));
-        const editUserStatus = await userService.editUserStatus(userIdx);
-        return res.send(editUserStatus);
-    }
-
-};
-
-/**
- * API No. 9
- * API Name : 받은 일기 알림 설정
- * [PATCH] /app/users/:userIdx/push/diary
- * path variable : userIdx, diary
- * body : diaryPush
- */
-exports.patchDiaryPush = async function (req, res) {
-
-    const userIdFromJWT = req.verifiedToken.userIdx;
-
-    const userIdx = req.params.userIdx;
-    const diaryPush = req.body.diaryPush;
-
-    if (userIdFromJWT != userIdx) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
-    } else {
-        if (!diaryPush) return res.send(errResponse(baseResponse.USER_DIARY_PUSH_EMPTY));
-        if (!userIdx) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
-        if (!(diaryPush == 'T' || diaryPush == 'F')) return res.send(errResponse(baseResponse.PUSH_DIARY_WRONG));
-
-        const editDiaryPush = await userService.editDiaryPush(userIdx, diaryPush);
-        return res.send(editDiaryPush);
-    }
-};
-
-/** API No. 10
- * API Name : 받은 답장 알림 설정
- * [PATCH] /app/users/:userIdx/push/answer
- * path variable : userIdx, answer
- * body : diaryPush
- */
-exports.patchPushAnswer = async function (req, res) {
-
-    const userIdFromJWT = req.verifiedToken.userIdx;
-
-    const userIdx = req.params.userIdx;
-    const answerPush = req.body.answerPush;
-
-    if (userIdFromJWT != userIdx) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
-    } else {
-        if (!answerPush) return res.send(errResponse(baseResponse.USER_ANSWER_PUSH_EMPTY));
-        if (!userIdx) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
-        if (!(answerPush == 'T' || answerPush == 'F')) return res.send(errResponse(baseResponse.PUSH_ANSWER_WRONG));
-
-        const editAnswerPush = await userService.editAnswerPush(userIdx, answerPush);
-        return res.send(editAnswerPush);
-    }
-};
-
-/** API No. 11
- * API Name : 받은 채팅 알림 설정
- * [PATCH] /app/users/:userIdx/push/chat
- * path variable : userIdx, chat
- * body : chatPush
- */
-exports.patchPushChat = async function (req, res) {
-
-    const userIdFromJWT = req.verifiedToken.userIdx;
-
-    const userIdx = req.params.userIdx;
-    const chatPush = req.body.chatPush;
-
-    if (userIdFromJWT != userIdx) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
-    } else {
-        if (!chatPush) return res.send(errResponse(baseResponse.USER_CHAT_PUSH_EMPTY));
-        if (!userIdx) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
-        if (!(chatPush == 'T' || chatPush == 'F')) return res.send(errResponse(baseResponse.PUSH_CHAT_WRONG));
-
-        const editChatPush = await userService.editChatPush(userIdx, chatPush);
-        return res.send(editChatPush);
-    }
-
-};
-
