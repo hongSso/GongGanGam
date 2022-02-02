@@ -70,10 +70,21 @@ module.exports = {
     DIARYSHARE_USER_INVALID : { "isSuccess": false, "code": 5018, "message": "조회할 수 없는 다이어리입니다."},
 
     // 6000번 소연
-    USER_BIRTHYEAR_EMPTY: {"isSuccess": false, "code": 6000, "message": "출생년도 값을 입력해주세요."},
+    USER_BIRTHYEAR_EMPTY : {"isSuccess": false, "code": 6000, "message": "출생년도 값을 입력해주세요."},
     USER_GENDER_EMPTY: {"isSuccess": false, "code": 6001, "message": "성별을 입력해주세요."},
-    USER_DIARY_PUSH_EMPTY: {"isSuccess": false, "code": 6003, "message": "받은일기 알람 설정을 선택해주세요."},
-    USER_CHAT_PUSH_EMPTY : {"isSuccess": false, "code": 6004, "message": "채팅 알람 설정을 선택해주세요."},
-    //USER_NICKNAME_EMPTY : {"isSuccess": false, "code": 6005, "message": "닉네임을 입력해주세요."},
+    USER_DIARY_PUSH_EMPTY : {"isSuccess": false, "code": 6002, "message": "받은 일기 알람 설정을 선택해주세요."},
+    USER_ANSWER_PUSH_EMPTY : {"isSuccess": false, "code": 6003, "message": "받은 답장 알람 설정을 선택해주세요."},
+    USER_CHAT_PUSH_EMPTY : {"isSuccess": false, "code": 6004, "message": "채팅 알림 설정을 선택해주세요."},
+    USER_NICKNAME_EMPTY : {"isSuccess": false, "code": 6005, "message": "닉네임을 입력해주세요."},
     USER_STATUS_ALREADY_INACTIVE : {"isSuccess": false, "code": 6006, "message": "이미 탈퇴한 회원입니다."},
+    PUSH_DIARY_WRONG : {"isSuccess": false, "code": 6007, "message": "받은 일기 알림 설정이 잘못 되었습니다."},
+    PUSH_ANSWER_WRONG : {"isSuccess": false, "code": 6008, "message": "받은 답장 알림 설정이 잘못 되었습니다."},
+    PUSH_CHAT_WRONG : {"isSuccess": false, "code": 6009, "message": "채팅 알림 설정이 잘못 되었습니다."},
+    SIGNIN_IDENTIFICATION_WRONG : {"isSuccess": false, "code": 6010, "message": "식별번호가 잘못 되었습니다."},
+    USER_GENDER_WRONG : {"isSuccess": false, "code": 6011, "message": "성별 설정이 잘못 되었습니다."},
+    USER_SETAGE_WRONG : {"isSuccess": false, "code": 6012, "message": "연령대 지정 설정이 잘못 되었습니다."},
+    USER_BIRTHYEAR_NUMBER_WRONG : {"isSuccess": false, "code": 6013, "message": "출생년도는 4자리를 입력해주세요"},
+    USER_BIRTHYEAR_TIMR_WRONG : {"isSuccess": false, "code": 6014, "message": "출생년도가 올바르지 않습니다."},
+    USER_SETAGE_EMPTY : {"isSuccess": false, "code": 6015, "message": "연령대 지정 값을 입력해주세요."},
+}
 }
