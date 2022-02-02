@@ -36,15 +36,27 @@ async function selectDiaryAnswer(connection, diaryIdx) {
 }
 
 // 공유된 다이어리 리스트 가져오기
-async function selectShareList(connection) {
+async function selectShareList(connection, userIdx, pageSize, offset) {
+    const params = [userIdx, pageSize, offset];
     const selectDeliveryQuery = `
         select DiaryShare.diaryIdx, Diary.userIdx, nickname as userNickname, profImg as userProfImg, contents as diaryContents,
                date_format(diaryDate, '%y.%m.%d') as diaryDate, isRead
         from DiaryShare join Diary on Diary.diaryIdx=DiaryShare.diaryIdx
                         join User on Diary.userIdx = User.userIdx
-        where shareUserIdx=1 order by diaryDate;
+        where shareUserIdx=? order by diaryDate limit ? offset ?;
                 `;
-    const [diaryInfo] = await connection.query(selectDeliveryQuery);
+    const [diaryInfo] = await connection.query(selectDeliveryQuery, params);
+    return diaryInfo;
+}
+
+// 공유된 다이어리 리스트 가져오기
+async function selectAllShareList(connection, userIdx) {
+    const selectDeliveryQuery = `
+        select DiaryShare.diaryIdx
+        from DiaryShare join Diary on Diary.diaryIdx=DiaryShare.diaryIdx
+        where shareUserIdx=? and Diary.status = 'ACTIVE' order by diaryDate;
+                `;
+    const [diaryInfo] = await connection.query(selectDeliveryQuery, userIdx);
     return diaryInfo;
 }
 
@@ -61,13 +73,24 @@ async function selectShareDiary(connection, diaryIdx) {
 }
 
 // 받은 답장 리스트 가져오기
-async function selectAnswer(connection, userIdx) {
+async function selectAnswer(connection, userIdx, pageSize, offset) {
+    const params = [userIdx, pageSize, offset];
     const selectAnswerQuery = `
         select answerIdx, User.userIdx, nickname as userNickname, profImg as userProfImg, answerContents,
                date_format(Answer.updatedAt, '%y.%m.%d') as answerDate, isRead
         from Answer join Diary on Diary.diaryIdx=Answer.diaryIdx
                     join User on Diary.userIdx = User.userIdx
-        where answerUserIdx=? order by Answer.updatedAt;
+        where answerUserIdx=? and Answer.status='ACTIVE' order by Answer.updatedAt  limit ? offset ?;
+                `;
+    const [diaryInfo] = await connection.query(selectAnswerQuery, params);
+    return diaryInfo;
+}
+
+async function selectAllAnswer(connection, userIdx) {
+    const selectAnswerQuery = `
+        select answerIdx
+        from Answer join Diary on Diary.diaryIdx=Answer.diaryIdx
+        where answerUserIdx=? and Answer.status='ACTIVE' order by Answer.updatedAt;
                 `;
     const [diaryInfo] = await connection.query(selectAnswerQuery, userIdx);
     return diaryInfo;
@@ -110,11 +133,25 @@ async function selectRandUser(connection, userIdx) {
     return diaryInfo;
 }
 
-// 유저 생성
+// 다이어리 생성
 async function insertDiary(connection, insertDiaryParams) {
     const insertDiaryQuery = `
         INSERT INTO Diary(userIdx, diaryDate, emoji, contents, shareAgree)
         VALUES (?, ?, ?, ?, ?);
+    `;
+    const insertHeartRow = await connection.query(
+        insertDiaryQuery,
+        insertDiaryParams
+    );
+
+    return insertHeartRow;
+}
+
+// 다이어리 생성 (사진 포함)
+async function insertDiaryImg(connection, insertDiaryParams) {
+    const insertDiaryQuery = `
+        INSERT INTO Diary(userIdx, diaryDate, emoji, contents, shareAgree, imgUrl)
+        VALUES (?, ?, ?, ?, ?, ?);
     `;
     const insertHeartRow = await connection.query(
         insertDiaryQuery,
@@ -138,6 +175,20 @@ async function insertAnswer(connection, insertAnswerParams) {
     return insertAnswerRow;
 }
 
+// 답장하기
+async function insertShare(connection, shareParams) {
+    const insertShareQuery = `
+        INSERT INTO DiaryShare(diaryIdx, shareUserIdx)
+        VALUES (?, ?);
+    `;
+    const insertAnswerRow = await connection.query(
+        insertShareQuery,
+        shareParams
+    );
+
+    return insertAnswerRow;
+}
+
 // 다이어리 status를 F로 수정하기
 async function updateDiaryStatus(connection, diaryIdx) {
     const params = ['INACTIVE', diaryIdx];
@@ -146,6 +197,17 @@ async function updateDiaryStatus(connection, diaryIdx) {
         SET status = ?
         WHERE diaryIdx = ?;`;
     const updateUserRow = await connection.query(updateReviewQuery, params);
+    return updateUserRow[0];
+}
+
+// 공유된 다이어리 읽은 상태 수정하기
+async function updateDiaryReadStatus(connection, diaryIdx) {
+    const params = ['T', diaryIdx]
+    const updateDiaryReadQuery = `
+        UPDATE DiaryShare 
+        SET isRead = ?
+        WHERE diaryIdx = ?;`;
+    const updateUserRow = await connection.query(updateDiaryReadQuery, params);
     return updateUserRow[0];
 }
 
@@ -181,8 +243,21 @@ async function checkDiaryExists(connection, diaryIdx) {
     return diaryInfo;
 }
 
+// 존재하는 다이어리인지 확인
+async function checkDiaryShareUser(connection, params) {
+    const selectUserQuery = `
+        select diaryShareIdx
+        from DiaryShare
+        where diaryIdx=? and shareUserIdx=?;
+                `;
+    const [diaryInfo] = await connection.query(selectUserQuery, params);
+    return diaryInfo;
+}
+
 module.exports = {
     selectMonthDiary, selectDiary, selectDiaryAnswer, selectShareList, selectShareDiary,
     insertDiary, updateDiaryStatus, checkUserExists, checkDiaryExists, selectAnswer,
-    selectDiaryDetail, selectAnswerDetail, insertAnswer, selectRandUser, updateDiary
+    selectDiaryDetail, selectAnswerDetail, insertAnswer, selectRandUser, updateDiary,
+    insertShare, insertDiaryImg, selectAllShareList, selectAllAnswer, updateDiaryReadStatus,
+    checkDiaryShareUser,
 };

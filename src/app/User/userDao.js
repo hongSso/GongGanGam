@@ -6,7 +6,6 @@ async function insertUserInfo(connection, insertUserInfoParams) {
   const insertUserInfoQuery = `
         INSERT INTO User(nickname, birthYear, gender, type, email, accessToken)
         VALUES (?, ?, ?, ?, ?, ?);
-        
     `;
   const insertUserInfoRow = await connection.query(
       insertUserInfoQuery,
@@ -105,6 +104,7 @@ async function selectUserAccount(connection, email) {
 }
 
 
+
 async function updateUserInfo(connection,nickname, birthYear, gender, setAge, userIdx) {
   const updateUserQuery = `
     UPDATE User
@@ -123,7 +123,7 @@ async function selectUserStatus(connection, userIdx){
   return selectStatusRow;
 }
 
-async function updateUserStatus(connection,  userIdx, status) {
+async function updateUserStatus(connection,  userIdx) {
   const updateUserStatusQuery = `
     UPDATE User
     SET status = ?

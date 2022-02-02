@@ -45,8 +45,10 @@ exports.checkUserExist = async function (email, identification) {
   const userCheckResult = await userDao.selectUserCheck(connection, email, identification);
   connection.release();
 
+
   return userCheckResult;
 };
+
 
 
 exports.userEmailCheck = async function (email) {

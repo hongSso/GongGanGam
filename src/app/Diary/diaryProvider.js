@@ -33,14 +33,22 @@ exports.retrieveDiary = async function (year, month, day) {
     return diary;
 };
 
-exports.retrieveSharedDiaryList = async function () {
+exports.retrieveSharedDiaryList = async function (userIdx, pageSize, offset) {
     const connection = await pool.getConnection(async (conn) => conn);
-    const shareList = await diaryDao.selectShareList(connection);
-    const shareResult = {'diarys' : shareList}
+    const shareList = await diaryDao.selectShareList(connection, userIdx, pageSize, offset);
 
     connection.release();
 
-    return shareResult;
+    return shareList;
+};
+
+exports.retrieveAllShared = async function (userIdx) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const shareList = await diaryDao.selectAllShareList(connection, userIdx);
+
+    connection.release();
+
+    return shareList;
 };
 
 exports.retrieveSharedDiary = async function (diaryIdx) {
@@ -52,9 +60,18 @@ exports.retrieveSharedDiary = async function (diaryIdx) {
     return shareList;
 };
 
-exports.retrieveAnswerList = async function (userIdx) {
+exports.retrieveAnswerList = async function (userIdx, pageSize, offset) {
     const connection = await pool.getConnection(async (conn) => conn);
-    const answerList = await diaryDao.selectAnswer(connection, userIdx);
+    const answerList = await diaryDao.selectAnswer(connection, userIdx, pageSize, offset);
+
+    connection.release();
+
+    return answerList;
+};
+
+exports.retrieveAllAnswer = async function (userIdx) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const answerList = await diaryDao.selectAllAnswer(connection, userIdx);
 
     connection.release();
 
@@ -64,12 +81,50 @@ exports.retrieveAnswerList = async function (userIdx) {
 exports.retrieveAnswer = async function (diaryIdx, userIdx) {
     const connection = await pool.getConnection(async (conn) => conn);
 
-    const diary = await diaryDao.selectDiaryDetail(diaryIdx);
-    const params = [diaryIdx, userIdx];
-    const answer = await diaryDao.selectAnswerDetail(connection, params);
-    const result = {'diary' : diary, 'answer' : answer};
+    try {
+        await connection.beginTransaction();
+
+        const diary = await diaryDao.selectDiaryDetail(connection, diaryIdx);
+        const params = [diaryIdx, userIdx];
+        const answer = await diaryDao.selectAnswerDetail(connection, params);
+        const result = {'diary' : diary, 'answer' : answer};
+
+        await connection.commit();
+        return result;
+    } catch (err) {
+        console.log(err);
+        await connection.rollback();
+    } finally {
+        connection.release();
+    }
+
+
+};
+
+exports.checkUser = async function (userIdx) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const user = await diaryDao.checkUserExists(connection, userIdx);
 
     connection.release();
 
-    return result;
+    return user;
+};
+
+exports.checkDiary = async function (diaryIdx) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const diary = await diaryDao.checkDiaryExists(connection, diaryIdx);
+
+    connection.release();
+
+    return diary;
+};
+
+exports.checkDiaryShareUser = async function (diaryIdx, userIdx) {
+    const params = [diaryIdx, userIdx];
+    const connection = await pool.getConnection(async (conn) => conn);
+    const diary = await diaryDao.checkDiaryShareUser(connection, params);
+
+    connection.release();
+
+    return diary;
 };

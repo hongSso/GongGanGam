@@ -23,18 +23,22 @@ exports.createDiary = async function (userIdx, date, emoji, content, shareAgree)
 
         const connection = await pool.getConnection(async (conn) => conn);
 
-
         try {
             await connection.beginTransaction();
 
+            const diaryResult = await diaryDao.insertDiary(connection, insertDiaryParams);
+            const insertDiaryIdx = diaryResult[0].insertId;
+            console.log('insert:' + insertDiaryIdx);
+
             if (shareAgree === 'T') {
-                //const diaryResult = await diaryDao.insertDiary(connection, insertDiaryParams);
 
                 // 랜덤의 유저 가져오기
-                const randUser = await diaryDao.selectRandUser(userIdx);
-                console.log('rand:' + randUser);
+                const randUser = await diaryDao.selectRandUser(connection, userIdx);
+                console.log(randUser[0].userIdx);
+                const randUserIdx = randUser[0].userIdx;
 
-                //const shareResult = await diaryDaro.insertShare(connection, )
+                const shareParams = [insertDiaryIdx, randUserIdx];
+                const shareResult = await diaryDao.insertShare(connection, shareParams);
             }
 
             await connection.commit();
@@ -46,8 +50,48 @@ exports.createDiary = async function (userIdx, date, emoji, content, shareAgree)
             connection.release();
         }
 
+    } catch (err) {
+        logger.error(`App - createDiary Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
+
+exports.createDiaryImg = async function (userIdx, date, emoji, content, shareAgree, imgUrl) {
+    try {
+
+        // 쿼리문에 사용할 변수 값을 배열 형태로 전달
+        const insertDiaryParams = [userIdx, date, emoji, content, shareAgree, imgUrl];
+        console.log(insertDiaryParams);
+
+        const connection = await pool.getConnection(async (conn) => conn);
 
 
+        try {
+            await connection.beginTransaction();
+
+            const diaryResult = await diaryDao.insertDiaryImg(connection, insertDiaryParams);
+            const insertDiaryIdx = diaryResult[0].insertId;
+            console.log('insert:' + insertDiaryIdx);
+
+            if (shareAgree === 'T') {
+
+                // 랜덤의 유저 가져오기
+                const randUser = await diaryDao.selectRandUser(connection, userIdx);
+                console.log(randUser[0].userIdx);
+                const randUserIdx = randUser[0].userIdx;
+
+                const shareParams = [insertDiaryIdx, randUserIdx];
+                const shareResult = await diaryDao.insertShare(connection, shareParams);
+            }
+
+            await connection.commit();
+            return response(baseResponse.SUCCESS);
+        } catch (err) {
+            console.log(err);
+            await connection.rollback();
+        } finally {
+            connection.release();
+        }
 
     } catch (err) {
         logger.error(`App - createDiary Service error\n: ${err.message}`);
@@ -77,6 +121,22 @@ exports.updateDiaryStatus = async function (userIdx, diaryIdx) {
 
     } catch (err) {
         logger.error(`App - updateDiaryStatus Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
+
+exports.updateDiaryIsRead = async function (diaryIdx) {
+    try {
+
+        const connection = await pool.getConnection(async (conn) => conn);
+
+        const updateDiaryReadResult = await diaryDao.updateDiaryReadStatus(connection, diaryIdx);
+
+        connection.release();
+        return 1;
+
+    } catch (err) {
+        logger.error(`App - updateDiaryIsRead Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
 };
