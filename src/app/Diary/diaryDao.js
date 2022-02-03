@@ -4,7 +4,7 @@ async function selectMonthDiary(connection, params) {
     const selectMonthDiaryQuery = `
         select date_format(diaryDate, '%e') as day, emoji
         from Diary
-        where userIdx=1 and year(diaryDate) - ? = 0 and month(diaryDate) - ? =0  and status = 'ACTIVE'
+        where userIdx=? and year(diaryDate) - ? = 0 and month(diaryDate) - ? =0  and status = 'ACTIVE'
         order by diaryDate;
     `;
     const [monthRows] = await connection.query(selectMonthDiaryQuery, params);
@@ -14,9 +14,9 @@ async function selectMonthDiary(connection, params) {
 // 그날의 다이어리 가져오기
 async function selectDiary(connection, params) {
     const selectDeliveryQuery = `
-        select diaryIdx, emoji, date_format(updatedAt, '%Y년 %c월 %e일') as diaryDate, contents, imgUrl as image
+        select diaryIdx, emoji, date_format(diaryDate, '%Y년 %c월 %e일') as diaryDate, contents, imgUrl as image
         from Diary
-        where userIdx=1 and year(diaryDate) - ? = 0 and month(diaryDate) - ? =0
+        where userIdx=? and year(diaryDate) - ? = 0 and month(diaryDate) - ? =0
           and day(diaryDate) - ? = 0  and status = 'ACTIVE';
                 `;
     const [diaryInfo] = await connection.query(selectDeliveryQuery, params);

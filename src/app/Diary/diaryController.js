@@ -17,7 +17,7 @@ const fs = require('fs');
 exports.getSharedDiarys = async function (req, res) {
 
     //const userIdx = 1;
-    const userIdx = req.verifiedToken.userId;
+    const userIdx = req.verifiedToken.userIdx;
 
     console.log('userIdx: ' + userIdx)
     // 페이징 처리 (테스트 용으로 페이지 사이즈 3)
@@ -54,7 +54,7 @@ exports.getSharedDiarys = async function (req, res) {
  */
 exports.getAnswerList = async function (req, res) {
     //const userIdx = 1;
-    const userIdx = req.verifiedToken.userId;
+    const userIdx = req.verifiedToken.userIdx;
 
     console.log('userIdx: ' + userIdx)
 
@@ -93,7 +93,7 @@ exports.getAnswerList = async function (req, res) {
  */
 exports.getSharedDiaryDetail = async function (req, res) {
 
-    const userIdx = req.verifiedToken.userId;
+    const userIdx = req.verifiedToken.userIdx;
 
     console.log('userIdx: ' + userIdx)
 
@@ -122,7 +122,7 @@ exports.getSharedDiaryDetail = async function (req, res) {
  */
 exports.getAnswer = async function (req, res) {
 
-    const userIdx = req.verifiedToken.userId;
+    const userIdx = req.verifiedToken.userIdx;
 
     console.log('userIdx: ' + userIdx)
 
@@ -158,7 +158,7 @@ exports.getDiarys = async function (req, res) {
      */
     const year = req.query.year;
     const month = req.query.month;
-    const userIdx = req.verifiedToken.userId;
+    const userIdx = req.verifiedToken.userIdx;
 
     console.log('userIdx: ' + userIdx);
 
@@ -166,7 +166,7 @@ exports.getDiarys = async function (req, res) {
     if (!month) return res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY));
 
 
-    const monthDiaryResult = await diaryProvider.retrieveMonthList(year, month);
+    const monthDiaryResult = await diaryProvider.retrieveMonthList(userIdx, year, month);
     return res.send(response(baseResponse.SUCCESS, monthDiaryResult));
 
 };
@@ -185,7 +185,7 @@ exports.getDiaryDetail = async function (req, res) {
     const year = req.query.year;
     const month = req.query.month;
     const day = req.query.day;
-    const userIdx = req.verifiedToken.userId;
+    const userIdx = req.verifiedToken.userIdx;
 
     console.log('userIdx: ' + userIdx)
 
@@ -194,7 +194,7 @@ exports.getDiaryDetail = async function (req, res) {
     if (!month) return res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY));
     if (!day) return res.send(errResponse(baseResponse.DIARY_DAY_EMPTY));
 
-    const diaryResult = await diaryProvider.retrieveDiary(year, month, day);
+    const diaryResult = await diaryProvider.retrieveDiary(userIdx, year, month, day);
     return res.send(response(baseResponse.SUCCESS, diaryResult));
 
 };
@@ -215,7 +215,7 @@ exports.postDiary = async function (req, res) {
     console.log(file);
 
     //const userIdx = 1;
-    const userIdx = req.verifiedToken.userId;
+    const userIdx = req.verifiedToken.userIdx;
 
     console.log('userIdx: ' + userIdx)
 
@@ -291,7 +291,7 @@ exports.postAnswer = async function (req, res) {
     const {content, diaryIdx} = req.body;
 
     //const userIdx = 1;
-    const userIdx = req.verifiedToken.userId;
+    const userIdx = req.verifiedToken.userIdx;
 
     console.log('userIdx: ' + userIdx)
 
@@ -313,7 +313,7 @@ exports.patchDiaryStatus = async function (req, res) {
 
     const diaryIdx = req.params.diaryIdx;
     //const userIdx = 1;
-    const userIdx = req.verifiedToken.userId;
+    const userIdx = req.verifiedToken.userIdx;
 
     console.log('userIdx: ' + userIdx)
 
@@ -335,7 +335,7 @@ exports.patchDiary = async function (req, res) {
 
     const diaryIdx = req.params.diaryIdx;
     const {emoji, year, month, day, content, shareAgree} = req.body;
-    const userIdx = req.verifiedToken.userId;
+    const userIdx = req.verifiedToken.userIdx;
 
     console.log('userIdx: ' + userIdx)
 

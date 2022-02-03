@@ -6,8 +6,8 @@ const diaryDao = require("./diaryDao");
 // Provider: Read 비즈니스 로직 처리
 
 
-exports.retrieveMonthList = async function (year, month) {
-    const params = [year, month];
+exports.retrieveMonthList = async function (userIdx, year, month) {
+    const params = [userIdx, year, month];
     const connection = await pool.getConnection(async (conn) => conn);
     const monthList = await diaryDao.selectMonthDiary(connection, params);
 
@@ -16,8 +16,8 @@ exports.retrieveMonthList = async function (year, month) {
     return monthList;
 };
 
-exports.retrieveDiary = async function (year, month, day) {
-    const params = [year, month, day];
+exports.retrieveDiary = async function (userIdx, year, month, day) {
+    const params = [userIdx, year, month, day];
     const connection = await pool.getConnection(async (conn) => conn);
     const diary = await diaryDao.selectDiary(connection, params);
 
@@ -30,7 +30,7 @@ exports.retrieveDiary = async function (year, month, day) {
 
     connection.release();
 
-    return diary;
+    return diary[0];
 };
 
 exports.retrieveSharedDiaryList = async function (userIdx, pageSize, offset) {
@@ -57,7 +57,7 @@ exports.retrieveSharedDiary = async function (diaryIdx) {
 
     connection.release();
 
-    return shareList;
+    return shareList[0];
 };
 
 exports.retrieveAnswerList = async function (userIdx, pageSize, offset) {
@@ -87,7 +87,7 @@ exports.retrieveAnswer = async function (diaryIdx, userIdx) {
         const diary = await diaryDao.selectDiaryDetail(connection, diaryIdx);
         const params = [diaryIdx, userIdx];
         const answer = await diaryDao.selectAnswerDetail(connection, params);
-        const result = {'diary' : diary, 'answer' : answer};
+        const result = {'diary' : diary[0], 'answer' : answer[0]};
 
         await connection.commit();
         return result;
