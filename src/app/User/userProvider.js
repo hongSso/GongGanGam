@@ -17,6 +17,7 @@ exports.retrieveUser = async function (userIdx) {
   return userResult[0];
 };
 
+
 exports.userNicknameCheck = async function (nickname) {
   const connection = await pool.getConnection(async (conn) => conn);
   const nicknameCheckResult = await userDao.selectUserNickname(connection, nickname);
@@ -66,4 +67,21 @@ exports.userIdentificationCheck = async function (selectEmail) {
   connection.release();
 
   return identificationCheckResult;
+};
+
+
+exports.checkUserExistByIdx = async function (userIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const userCheckResult = await userDao.checkUserByIdx(connection, userIdx);
+  connection.release();
+
+  return userCheckResult;
+};
+
+exports.checkUserName = async function (nickname, userIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const userCheckResult = await userDao.checkUserByName(connection, nickname, userIdx);
+  connection.release();
+
+  return userCheckResult;
 };

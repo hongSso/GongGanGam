@@ -67,7 +67,10 @@ module.exports = {
     SIGNUP_ERROR : { "isSuccess": false, "code": 5016, "message": "회원가입에 실패하였습니다. 다시 시도해주세요."},
     SIGNUP_EMAIL_EXISTS : { "isSuccess": false, "code": 5017, "message": "존재하는 이메일입니다."},
     SIGNUP_USER_EXISTS : { "isSuccess": false, "code": 5018, "message": "존재하는 사용자입니다. 로그인해주세요."},
-    DIARYSHARE_USER_INVALID : { "isSuccess": false, "code": 5018, "message": "조회할 수 없는 다이어리입니다."},
+    DIARYSHARE_USER_INVALID : { "isSuccess": false, "code": 5019, "message": "조회할 수 없는 다이어리입니다."},
+    USER_TYPE_EMPTY : { "isSuccess": false, "code": 5020, "message": "회원가입한 타입을 입력해주세요."},
+    USER_BIRTHYEAR_INVALID : {"isSuccess": false, "code": 5021, "message": "출생년도가 올바르지 않습니다."},
+
 
     // 6000번 소연
     USER_BIRTHYEAR_EMPTY : {"isSuccess": false, "code": 6000, "message": "출생년도 값을 입력해주세요."},
@@ -75,7 +78,7 @@ module.exports = {
     USER_DIARY_PUSH_EMPTY : {"isSuccess": false, "code": 6002, "message": "받은 일기 알람 설정을 선택해주세요."},
     USER_ANSWER_PUSH_EMPTY : {"isSuccess": false, "code": 6003, "message": "받은 답장 알람 설정을 선택해주세요."},
     USER_CHAT_PUSH_EMPTY : {"isSuccess": false, "code": 6004, "message": "채팅 알림 설정을 선택해주세요."},
-    USER_NICKNAME_EMPTY : {"isSuccess": false, "code": 6005, "message": "닉네임을 입력해주세요."},
+    SIGNIN_USER_NICKNAME_EMPTY : {"isSuccess": false, "code": 6005, "message": "닉네임을 입력해주세요."},
     USER_STATUS_ALREADY_INACTIVE : {"isSuccess": false, "code": 6006, "message": "이미 탈퇴한 회원입니다."},
     PUSH_DIARY_WRONG : {"isSuccess": false, "code": 6007, "message": "받은 일기 알림 설정이 잘못 되었습니다."},
     PUSH_ANSWER_WRONG : {"isSuccess": false, "code": 6008, "message": "받은 답장 알림 설정이 잘못 되었습니다."},

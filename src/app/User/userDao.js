@@ -4,7 +4,7 @@
 
 async function insertUserInfo(connection, insertUserInfoParams) {
   const insertUserInfoQuery = `
-        INSERT INTO User(nickname, birthYear, gender, type, email, accessToken)
+        INSERT INTO User(nickname, birthYear, gender, type, email, identification)
         VALUES (?, ?, ?, ?, ?, ?);
     `;
   const insertUserInfoRow = await connection.query(
@@ -63,7 +63,7 @@ async function selectUserEmail(connection, email) {
   const selectUserEmailQuery = `
     select email, identification, nickname
     from User
-    where User.email=?; 
+    where email=?;
                  `;
   const [userRow] = await connection.query(selectUserEmailQuery, email);
   return userRow;
@@ -82,9 +82,33 @@ async function selectUserIdentification(connection, selectEmail) {
 async function selectUserCheck(connection, email, identification) {
   const params = [email, identification]
   const selectUserQuery = `
-    select userIdx, accessToken
+    select userIdx, identification
     from User
-    where User.email = ? and accessToken = ?;
+    where User.email = ? and identification = ?;
+                 `;
+  const [userRow] = await connection.query(selectUserQuery, params);
+  return userRow;
+}
+
+// userIdx로 사용자가 존재하는지 확인
+async function checkUserByIdx(connection, userIdx) {
+  const selectUserQuery = `
+    select userIdx, nickname
+    from User
+    where userIdx=?;
+                 `;
+  const [userRow] = await connection.query(selectUserQuery, userIdx);
+  return userRow;
+}
+
+// 중복되는 닉네임이 있는지 확인 (자신 제외)
+async function checkUserByName(connection, nickname, userIdx) {
+  const params = [nickname, userIdx];
+  console.log(params)
+  const selectUserQuery = `
+    select nickname
+    from User
+    where nickname=? and userIdx not in (?);
                  `;
   const [userRow] = await connection.query(selectUserQuery, params);
   return userRow;
@@ -176,4 +200,6 @@ module.exports = {
   insertPush,
   selectUserIdentification,
   selectUserAccount,
+  checkUserByIdx,
+  checkUserByName
 };
