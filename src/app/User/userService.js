@@ -1,3 +1,4 @@
+
 const {logger} = require("../../../config/winston");
 const {pool} = require("../../../config/database");
 const secret_config = require("../../../config/secret");
@@ -12,6 +13,49 @@ const {errResponse} = require("../../../config/response");
 
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+
+exports.postSignIn = async function (email, identification) {
+    try {
+        // 이메일 여부 확인
+        const emailRows = await userProvider.userEmailCheck(email);
+        if (emailRows.length < 1) return errResponse(baseResponse.SIGNIN_EMAIL_WRONG);
+
+        const selectEmail = emailRows[0].email; //email, nickname, identification
+        console.log(selectEmail);
+        // 식별번호 확인 (입력한 비밀번호를 암호화한 것과 DB에 저장된 비밀번호가 일치하는 지 확인함)
+        //const identificationRows = await userProvider.userIdentificationCheck(selectEmail); //identification
+        console.log(emailRows[0].identification);
+        if (identification !== emailRows[0].identification) {
+            return errResponse(baseResponse.SIGNIN_IDENTIFICATION_WRONG);
+        }
+
+        // 계정 상태 확인
+        const userInfoRows = await userProvider.accountCheck(email); //status, nickname
+
+        if (userInfoRows[0].status === "INACTIVE") return errResponse(baseResponse.SIGNIN_INACTIVE_ACCOUNT);
+        console.log(userInfoRows[0].nickname);
+
+        //토큰 생성 Service
+        let token = await jwt.sign(
+            {
+                userIdx: userInfoRows[0].userIdx,
+            }, // 토큰의 내용(payload)
+            secret_config.jwtsecret, // 비밀키
+            {
+                expiresIn: "365d",
+                subject: "userInfo",
+            } // 유효 기간 365일
+        );
+
+        return response(baseResponse.SUCCESS, {'userIdx': userInfoRows[0].nickname, 'jwt': token});
+
+    }
+    catch (err) {
+        logger.error(`App - postSignIn Service error\n: ${err.message} \n${JSON.stringify(err)}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
+
 
 
 //04. 유저 생성
@@ -34,28 +78,27 @@ exports.createUser = async function (nickname, birthYear, gender, type, email, i
         //     .createHash("sha512")
         //     .update(identification)
         //     .digest("hex");
+        try {
+            const insertUserInfoParams = [nickname, birthYear, gender, type, email, identification];
+            await connection.beginTransaction();
+            const userNicknameResult = await userDao.insertUserInfo(connection, insertUserInfoParams);
+            console.log(`추가된 회원 : ${userNicknameResult[0].insertId}`)
+            const userPushResult = await userDao.insertPush(connection, userNicknameResult[0].insertId);
 
-        const insertUserInfoParams = [nickname, birthYear, gender,type, email,identification];
 
-        const userNicknameResult = await userDao.insertUserInfo(connection, insertUserInfoParams);
-        console.log(`추가된 회원 : ${userNicknameResult[0].insertId}`)
-        connection.release();
-
-        //토큰 생성 Service
-        let token = await jwt.sign(
-            {
-                userId: userNicknameResult[0].insertId,
-            }, // 토큰의 내용(payload)
-            secret_config.jwtsecret, // 비밀키
-            {
-                expiresIn: "365d",
-                subject: "userInfo",
-            } // 유효 기간 365일
-        );
-
-        return response(baseResponse.SUCCESS, {'userIdx': userNicknameResult[0].insertId, 'jwt': token});
-
-    } catch (err) {
+            await connection.commit();userNicknameResult
+            return response(baseResponse.SUCCESS, {'userIdx': userNicknameResult[0].insertId, 'nickname' : nickname});
+        }
+        catch (err) {
+            await connection.rollback();
+            console.log(err);
+            return errResponse(baseResponse.DB_ERROR);
+        }
+        finally{
+            connection.release();
+        }
+    }
+    catch{
         logger.error(`App - createUser Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
@@ -96,7 +139,7 @@ exports.editUserStatus = async function (userIdx) {
             return errResponse(baseResponse.USER_USERID_NOT_EXIST);
 
         const userStatus = await userDao.selectUserStatus(connection, userIdx);
-        if(userStatus[0].status==='INACTIVE') return errResponse(baseResponse.USER_STATUS_ALREADY_INACTIVE);
+        if(userStatus[0].status==status) return errResponse(baseResponse.USER_STATUS_ALREADY_INACTIVE);
 
         const editStatusResult = await userDao.updateUserStatus(connection, userIdx);
         connection.release();
