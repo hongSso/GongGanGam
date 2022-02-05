@@ -155,7 +155,7 @@ exports.editUserStatus = async function (userIdx) {
             return errResponse(baseResponse.USER_USERID_NOT_EXIST);
 
         const userStatus = await userDao.selectUserStatus(connection, userIdx);
-        if(userStatus[0].status=='INVALID') return errResponse(baseResponse.USER_STATUS_ALREADY_INACTIVE);
+        if(userStatus[0].status=='INACTIVE') return errResponse(baseResponse.USER_STATUS_ALREADY_INACTIVE);
 
         const editStatusResult = await userDao.updateUserStatus(connection, userIdx);
         connection.release();
