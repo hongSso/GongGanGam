@@ -69,7 +69,6 @@ module.exports = {
     SIGNUP_USER_EXISTS : { "isSuccess": false, "code": 5018, "message": "존재하는 사용자입니다. 로그인해주세요."},
     DIARYSHARE_USER_INVALID : { "isSuccess": false, "code": 5019, "message": "조회할 수 없는 다이어리입니다."},
     USER_TYPE_EMPTY : { "isSuccess": false, "code": 5020, "message": "회원가입한 타입을 입력해주세요."},
-    USER_BIRTHYEAR_INVALID : {"isSuccess": false, "code": 5021, "message": "출생년도가 올바르지 않습니다."},
 
 
     // 6000번 소연
@@ -87,6 +86,6 @@ module.exports = {
     USER_GENDER_WRONG : {"isSuccess": false, "code": 6011, "message": "성별 설정이 잘못 되었습니다."},
     USER_SETAGE_WRONG : {"isSuccess": false, "code": 6012, "message": "연령대 지정 설정이 잘못 되었습니다."},
     USER_BIRTHYEAR_NUMBER_WRONG : {"isSuccess": false, "code": 6013, "message": "출생년도는 4자리를 입력해주세요"},
-    USER_BIRTHYEAR_TIMR_WRONG : {"isSuccess": false, "code": 6014, "message": "출생년도가 올바르지 않습니다."},
+    USER_BIRTHYEAR_TIME_WRONG : {"isSuccess": false, "code": 6014, "message": "출생년도가 올바르지 않습니다."},
     USER_SETAGE_EMPTY : {"isSuccess": false, "code": 6015, "message": "연령대 지정 값을 입력해주세요."},
 }
