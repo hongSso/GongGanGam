@@ -46,7 +46,7 @@ exports.postUsers = async function (req, res) {
     if (!identification) return res.send(response(baseResponse.USER_IDENTIFICATION_EMPTY));
     if (!nickname) return res.send(response(baseResponse.SIGNIN_USER_NICKNAME_EMPTY));
     if (!birthYear) return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
-    if (!gender) return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
+    if (!gender) return res.send(response(baseResponse.USER_GENDER_EMPTY));
     if (!type) return res.send(response(baseResponse.USER_TYPE_EMPTY));
 
     //길이 체크
@@ -103,7 +103,7 @@ exports.patchUsers = async function (req, res) {
 
     //1900~올해까지만 유저 생성
     let year = Number(birthYear);
-    if (year <= 1900 || year >= today.getFullYear()) return res.send(errResponse(baseResponse.USER_BIRTHYEAR_INVALID));
+    if (year <= 1900 || year >= today.getFullYear()) return res.send(errResponse(baseResponse.USER_BIRTHYEAR_TIME_WRONG));
     if (!(gender === 'M' || gender === 'F' || gender === 'N')) return res.send(errResponse(baseResponse.USER_GENDER_WRONG));
     if (!(setAge === 'T' || setAge === 'F')) return res.send(errResponse(baseResponse.USER_SETAGE_WRONG));
 
