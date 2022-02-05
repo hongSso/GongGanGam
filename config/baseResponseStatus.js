@@ -69,6 +69,7 @@ module.exports = {
     SIGNUP_USER_EXISTS : { "isSuccess": false, "code": 5018, "message": "존재하는 사용자입니다. 로그인해주세요."},
     DIARYSHARE_USER_INVALID : { "isSuccess": false, "code": 5019, "message": "조회할 수 없는 다이어리입니다."},
     USER_TYPE_EMPTY : { "isSuccess": false, "code": 5020, "message": "회원가입한 타입을 입력해주세요."},
+    USER_PROFIMG_EMPTY : { "isSuccess": false, "code": 5021, "message": "수정할 이미지가 없습니다."},
 
 
     // 6000번 소연

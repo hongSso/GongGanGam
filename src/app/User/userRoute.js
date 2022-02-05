@@ -30,4 +30,7 @@ module.exports = function(app){
     // 11. 받은 채팅 알림 설정
     app.patch('/app/users/:userIdx/push/chat',jwtMiddleware,  user.patchPushChat);
 
+    // 25. 유저 프로필 사진 업로드(수정)
+    app.patch('/app/users/:userIdx/profile', jwtMiddleware, user.patchProfImg);
+
 };

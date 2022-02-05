@@ -5,6 +5,8 @@ const baseResponse = require("../../../config/baseResponseStatus");
 const {response, errResponse} = require("../../../config/response");
 const yearNow = require("date-utils");
 const regexEmail = require("regex-email");
+const s3Client = require("../../../config/s3");
+const AWS = require('aws-sdk');
 
 /**
  * API No. 0
@@ -232,3 +234,59 @@ exports.patchPushChat = async function (req, res) {
 
 };
 
+/**
+ * API No. 25
+ * API Name : 유저 프로필 사진 업로드(수정) API
+ * [PATCH] /app/users/:userIdx/profile
+ */
+exports.patchProfImg = async function (req, res) {
+
+    //const userIdx = 1;
+    const userIdx = req.params.userIdx;
+    const userIdFromJWT = req.verifiedToken.userIdx;
+
+    console.log('userIdx: ' + userIdx)
+    if (userIdFromJWT != userIdx) res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+
+    const file = req.files;
+    console.log(file);
+
+
+    if (!req.files) {
+        console.log('no file');
+        return res.send(errResponse(baseResponse.USER_PROFIMG_EMPTY));
+    }
+    // 파일 잇는 경우
+    else {
+        const img = req.files.profImg;
+        console.log(img)
+        let bucketName = 'gonggangam-bucket'
+
+        const s3 = new AWS.S3({
+            accessKeyId: s3Client.accessid,
+            secretAccessKey: s3Client.secret,
+            region: 'ap-northeast-2',
+            Bucket: bucketName
+        });
+
+        const params = {
+            Bucket: 'gonggangam-bucket',
+            Key: img.name,
+            Body: img.data
+        };
+        s3.upload(params, async function(err, data) {
+            if (err) {
+                //throw err;
+                console.log('error')
+                console.log(err)
+                return res.send(errResponse(baseResponse.DIARY_S3_ERROR));
+            } else {
+                console.log(`File uploaded successfully.`);
+                console.log(data.Location)
+                const updateResponse = await userService.updateUserImg(userIdx, data.Location);
+                return res.send(updateResponse);
+
+            }
+        });
+    }
+};
