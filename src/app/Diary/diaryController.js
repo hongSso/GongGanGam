@@ -20,17 +20,8 @@ exports.getSharedDiarys = async function (req, res) {
     const userIdx = req.verifiedToken.userIdx;
 
     console.log('userIdx: ' + userIdx)
-    // 페이징 처리 (테스트 용으로 페이지 사이즈 3)
-    let page = req.query.page;
-    if (!page) page = 1;
-    console.log('page Num:' + page);
-    const pageSize = 3;
-    let pageNum = Number(page);
-    const offset = pageSize * pageNum - pageSize;
-    console.log('pageNum: ' + pageNum);
-    console.log('offset: ' + offset);
 
-    if (offset<0) return res.send(errResponse(baseResponse.PAGE_INVALID));
+
 
     const shareDiary = await diaryProvider.retrieveAllShared(userIdx);
     console.log(shareDiary);
@@ -142,6 +133,7 @@ exports.getAnswer = async function (req, res) {
     const answerResult = await diaryProvider.retrieveAnswer(diaryIdx, userIdx);
 
     if (answerResult.answer.length <1) return res.send(errResponse(baseResponse.ANSWER_DIARY_NOT_EXIST));
+
     return res.send(response(baseResponse.SUCCESS, answerResult));
 
 };
