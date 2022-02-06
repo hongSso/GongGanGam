@@ -21,8 +21,8 @@ exports.postSignIn = async function (email, identification) {
 
         const selectEmail = emailRows[0].email; //email, nickname, identification
         console.log(selectEmail);
-        // 식별번호 확인
-        const identificationRows = await userProvider.userIdentificationCheck(selectEmail); //identification
+        // 식별번호 확인 (입력한 비밀번호를 암호화한 것과 DB에 저장된 비밀번호가 일치하는 지 확인함)
+        //const identificationRows = await userProvider.userIdentificationCheck(selectEmail); //identification
         console.log(emailRows[0].identification);
         if (identification !== emailRows[0].identification) {
             return errResponse(baseResponse.SIGNIN_IDENTIFICATION_WRONG);
@@ -46,7 +46,7 @@ exports.postSignIn = async function (email, identification) {
             } // 유효 기간 365일
         );
 
-        return response(baseResponse.SUCCESS, {'userIdx': userInfoRows[0].nickname, 'jwt': token});
+        return response(baseResponse.SUCCESS, {'userIdx': userInfoRows[0].userIdx, 'userName': userInfoRows[0].nickname, 'jwt': token});
 
     }
     catch (err) {
@@ -84,9 +84,20 @@ exports.createUser = async function (nickname, birthYear, gender, type, email, i
             console.log(`추가된 회원 : ${userNicknameResult[0].insertId}`)
             const userPushResult = await userDao.insertPush(connection, userNicknameResult[0].insertId);
 
+            //토큰 생성 Service
+            let token = await jwt.sign(
+                {
+                    userIdx: userNicknameResult[0].insertId,
+                }, // 토큰의 내용(payload)
+                secret_config.jwtsecret, // 비밀키
+                {
+                    expiresIn: "365d",
+                    subject: "userInfo",
+                } // 유효 기간 365일
+            );
 
-            await connection.commit();userNicknameResult
-            return response(baseResponse.SUCCESS, {'userIdx': userNicknameResult[0].insertId, 'nickname' : nickname});
+            await connection.commit();
+            return response(baseResponse.SUCCESS, {'userIdx': userNicknameResult[0].insertId, 'userName' : nickname, 'jwt': token});
         }
         catch (err) {
             await connection.rollback();
@@ -109,13 +120,18 @@ exports.editUser = async function ( nickname, birthYear, gender, setAge, userIdx
         const connection = await pool.getConnection(async (conn) => conn);
 
         //닉네임 중복 방지 & 동일 유저가 같은 이름으로 수정할 때
-        const userNicknameRows = await userProvider.userIdCheck(userIdx);
-        if (userNicknameRows[0].nickname!==nickname && userNicknameRows.length > 0)
-            return errResponse(baseResponse.SIGNUP_REDUNDANT_NICKNAME);
+        const userNicknameRows = await userProvider.checkUserExistByIdx(userIdx);
+        console.log(userNicknameRows)
 
         //회원 존재 확인
         if (userNicknameRows.length < 1)
             return errResponse(baseResponse.USER_USERID_NOT_EXIST);
+        // 수정할 이름이 중복됐는지 확인.
+        // if (userNicknameRows[0].nickname!==nickname)
+        //     return errResponse(baseResponse.SIGNUP_REDUNDANT_NICKNAME);
+        const userNicknameCheck = await userProvider.checkUserName(nickname, userIdx);
+        console.log(userNicknameCheck)
+        if (userNicknameCheck.length>0) return errResponse(baseResponse.SIGNUP_REDUNDANT_NICKNAME);
 
         const editUserResult = await userDao.updateUserInfo(connection, nickname, birthYear, gender, setAge, userIdx)
         connection.release();
@@ -138,7 +154,7 @@ exports.editUserStatus = async function (userIdx) {
             return errResponse(baseResponse.USER_USERID_NOT_EXIST);
 
         const userStatus = await userDao.selectUserStatus(connection, userIdx);
-        if(userStatus[0].status==status) return errResponse(baseResponse.USER_STATUS_ALREADY_INACTIVE);
+        if(userStatus[0].status=='INACTIVE') return errResponse(baseResponse.USER_STATUS_ALREADY_INACTIVE);
 
         const editStatusResult = await userDao.updateUserStatus(connection, userIdx);
         connection.release();
