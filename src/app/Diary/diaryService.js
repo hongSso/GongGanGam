@@ -155,8 +155,26 @@ exports.updateDiary = async function (diaryIdx, userIdx, date, emoji, content, s
         // 삭제할 권한 있는 사용자인지 확인
         if (diaryResult[0].userIdx !== userIdx) return errResponse(baseResponse.DIARY_USER_INVALID);
 
-        const insertDiaryParams = [date, emoji, content, shareAgree, 'ACTIVE', diaryIdx];
+        // 이미 공유했으면 공유 수정은 안됨.
+        const shareAgreeResult = await diaryDao.checkShareAgree(connection, diaryIdx);
+        console.log(shareAgreeResult[0].shareAgree)
 
+        if (shareAgreeResult[0].shareAgree == 'T') {
+            if (shareAgree == 'F') return errResponse(baseResponse.DIARY_UPDATE_SHARE_INVALID);
+        } else {
+            if (shareAgree == 'T') {
+                // 공유하기
+                // 랜덤의 유저 가져오기
+                const randUser = await diaryDao.selectRandUser(connection, userIdx);
+                console.log(randUser[0].userIdx);
+                const randUserIdx = randUser[0].userIdx;
+
+                const shareParams = [diaryIdx, randUserIdx];
+                const shareResult = await diaryDao.insertShare(connection, shareParams);
+            }
+        }
+
+        const insertDiaryParams = [date, emoji, content, shareAgree, 'ACTIVE', diaryIdx];
         const updateDiaryResult = await diaryDao.updateDiary(connection, insertDiaryParams);
 
         connection.release();

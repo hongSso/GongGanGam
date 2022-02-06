@@ -352,3 +352,42 @@ exports.patchDiary = async function (req, res) {
     return res.send(patchdiaryResponse);
 
 };
+
+/**
+ * API No. 22
+ * API Name : 다이어리 수정하기 API
+ * [POST] /app/diarys/:diaryIdx
+ */
+exports.patchDiary = async function (req, res) {
+
+    /**
+     * Body: emoji, date, content, shareAgree
+     */
+
+    const diaryIdx = req.params.diaryIdx;
+    const {emoji, year, month, day, content, shareAgree} = req.body;
+    const userIdx = req.verifiedToken.userIdx;
+
+    console.log('userIdx: ' + userIdx)
+
+    if (!year) return res.send(errResponse(baseResponse.DIARY_YEAR_EMPTY));
+    if (!month) return res.send(errResponse(baseResponse.DIARY_MONTH_EMPTY));
+    if (!day) return res.send(errResponse(baseResponse.DIARY_DAY_EMPTY));
+
+    let date = year;
+
+    if (month < 10) {
+        date = date + '-0' +month;
+        if (day < 10) date = date + '-0' + day;
+        else date = date + '-' + day;
+    } else {
+        date = date + '-' + month;
+        if (day < 10) date = date + '-0' + day;
+        else date = date + '-' + day;
+    }
+
+
+    const patchdiaryResponse = await diaryService.updateDiary(diaryIdx, userIdx, date, emoji, content, shareAgree);
+    return res.send(patchdiaryResponse);
+
+};

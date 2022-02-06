@@ -254,10 +254,21 @@ async function checkDiaryShareUser(connection, params) {
     return diaryInfo;
 }
 
+// 공유한 다이어리인지 확인
+async function checkShareAgree(connection, diaryIdx) {
+    const selectShareAgreeQuery = `
+        select shareAgree
+        from Diary
+        where diaryIdx=?;
+                `;
+    const [diaryInfo] = await connection.query(selectShareAgreeQuery, diaryIdx);
+    return diaryInfo;
+}
+
 module.exports = {
     selectMonthDiary, selectDiary, selectDiaryAnswer, selectShareList, selectShareDiary,
     insertDiary, updateDiaryStatus, checkUserExists, checkDiaryExists, selectAnswer,
     selectDiaryDetail, selectAnswerDetail, insertAnswer, selectRandUser, updateDiary,
     insertShare, insertDiaryImg, selectAllShareList, selectAllAnswer, updateDiaryReadStatus,
-    checkDiaryShareUser,
+    checkDiaryShareUser, checkShareAgree
 };
