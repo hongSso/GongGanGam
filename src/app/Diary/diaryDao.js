@@ -243,6 +243,16 @@ async function updateDiary(connection, params) {
     return updateUserRow[0];
 }
 
+// 답장 거절하기
+async function updateAnswerReject(connection, params) {
+    const updateReviewQuery = `
+        UPDATE Answer 
+        SET isReject = ?
+        WHERE answerIdx = ?;`;
+    const updateUserRow = await connection.query(updateReviewQuery, params);
+    return updateUserRow[0];
+}
+
 // 존재하는 사용자인지 확인
 async function checkUserExists(connection, userIdx) {
     const selectUserQuery = `
@@ -304,5 +314,5 @@ module.exports = {
     selectDiaryDetail, selectAnswerDetail, insertAnswer, selectRandUser, updateDiary,
     insertShare, insertDiaryImg, selectAllShareList, selectAllAnswer, updateDiaryReadStatus,
     checkDiaryShareUser, checkShareAgree, checkAnswerExists, selectDiaryByAnswerIdx,
-    selectAnswerByIdx
+    selectAnswerByIdx, updateAnswerReject
 };

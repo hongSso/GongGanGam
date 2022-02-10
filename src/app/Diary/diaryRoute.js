@@ -32,5 +32,7 @@ module.exports = function(app){
     // 21. 다이어리 수정하기 API
     app.patch('/app/diarys/:diaryIdx',jwtMiddleware,  diary.patchDiary);
 
+    // 26. 답장 거절하기 API
+    app.patch('/app/diarys/answer/:answerIdx',jwtMiddleware,  diary.patchAnswerReject);
 };
 

@@ -9,9 +9,9 @@ const AWS = require('aws-sdk');
 const formidable = require('formidable')
 const fs = require('fs');
 
-const admin = require("firebase-admin");
-
-let serviceAccount = require("../../../config/firebase_admin.json");
+// const admin = require("firebase-admin");
+//
+// let serviceAccount = require("../../../config/firebase_admin.json");
 
 /**
  * API No. 12
@@ -115,32 +115,6 @@ exports.getSharedDiaryDetail = async function (req, res) {
  * API Name : 받은 답장 조회 API
  * [GET] /app/diarys/answer/:diaryIdx
  */
-// exports.getAnswer = async function (req, res) {
-//
-//     const userIdx = req.verifiedToken.userIdx;
-//
-//     console.log('userIdx: ' + userIdx)
-//
-//     const diaryIdx = req.params.diaryIdx;
-//     //const userIdx = 1;
-//
-//     if (!diaryIdx) return res.send(errResponse(baseResponse.DIARY_DIARYIDX_EMPTY));
-//     // 존재하지 않는 유저인지 확인
-//     const userCheckResult = await diaryProvider.checkUser(userIdx);
-//     if (userCheckResult.length<1) return res.send(errResponse(baseResponse.USER_NOT_EXIST));
-//     // 존재하지 않는 다이어리인지 확인
-//     const diaryCheckResult = await diaryProvider.checkDiary(diaryIdx);
-//     if (diaryCheckResult.length<1) return res.send(errResponse(baseResponse.DIARY_DIARYIDX_NOT_EXIST));
-//     // 다이어리의 접근하는 유저인지 확인?
-//     if (diaryCheckResult[0].userIdx !== userIdx) return res.send(errResponse(baseResponse.ANSWER_USERIDX_INVALID));
-//
-//     const answerResult = await diaryProvider.retrieveAnswer(diaryIdx, userIdx);
-//
-//     if (answerResult.answer.length <1) return res.send(errResponse(baseResponse.ANSWER_DIARY_NOT_EXIST));
-//
-//     return res.send(response(baseResponse.SUCCESS, answerResult));
-//
-// };
 exports.getAnswer = async function (req, res) {
 
     const userIdx = req.verifiedToken.userIdx;
@@ -388,43 +362,62 @@ exports.patchDiary = async function (req, res) {
 };
 
 /**
- * API No.
- * API Name : 푸쉬 알림 테스트 API
- * [POST] /app/diarys/push
+ * API No. 22
+ * API Name : 답장 거절하기 API
+ * [PATCH] /app/diarys/answer/:answerIdx
  */
-exports.postPush = async function (req, res) {
+exports.patchAnswerReject = async function (req, res) {
 
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-        databaseURL: "https://gonggangam-default-rtdb.firebaseio.com"
-    });
-
-    const diaryIdx = req.params.diaryIdx;
-    //const userIdx = 1;
+    const answerIdx = req.params.answerIdx;
     const userIdx = req.verifiedToken.userIdx;
 
     console.log('userIdx: ' + userIdx)
 
-    let target_token = '';
-    let message = {
-        data: {
-            title: '테스트 데이터 발송',
-            body: '데이터가 잘 가나요?',
-            style: '굳굳',
-        },
-        token: target_token,
-    }
-    admin
-        .messaging()
-        .send(message)
-        .then(function (response) {
-            console.log('Successfully sent message: : ', response)
-        })
-        .catch(function (err) {
-            console.log('Error Sending message!!! : ', err)
-        })
+    if (!answerIdx) return res.send(errResponse(baseResponse.ANSWER_ANSWERIDX_EMPTY));
 
-
-    return res.send(response(baseResponse.SUCCESS));
+    const patchAnswerResponse = await diaryService.updateAnswerReject(userIdx, answerIdx);
+    return res.send(patchAnswerResponse);
 
 };
+
+/**
+ * API No.
+ * API Name : 푸쉬 알림 테스트 API
+ * [POST] /app/diarys/push
+ */
+// exports.postPush = async function (req, res) {
+//
+//     admin.initializeApp({
+//         credential: admin.credential.cert(serviceAccount),
+//         databaseURL: "https://gonggangam-default-rtdb.firebaseio.com"
+//     });
+//
+//     const diaryIdx = req.params.diaryIdx;
+//     //const userIdx = 1;
+//     const userIdx = req.verifiedToken.userIdx;
+//
+//     console.log('userIdx: ' + userIdx)
+//
+//     let target_token = '';
+//     let message = {
+//         data: {
+//             title: '테스트 데이터 발송',
+//             body: '데이터가 잘 가나요?',
+//             style: '굳굳',
+//         },
+//         token: target_token,
+//     }
+//     admin
+//         .messaging()
+//         .send(message)
+//         .then(function (response) {
+//             console.log('Successfully sent message: : ', response)
+//         })
+//         .catch(function (err) {
+//             console.log('Error Sending message!!! : ', err)
+//         })
+//
+//
+//     return res.send(response(baseResponse.SUCCESS));
+//
+// };

@@ -186,6 +186,32 @@ exports.updateDiary = async function (diaryIdx, userIdx, date, emoji, content, s
     }
 };
 
+exports.updateAnswerReject = async function (userIdx, answerIdx) {
+    try {
+
+        const connection = await pool.getConnection(async (conn) => conn);
+
+        // 존재하는 사용자, 다이어리인지 확인
+        const userResult = await diaryDao.checkUserExists(connection, userIdx);
+        if (userResult.length<1) return errResponse(baseResponse.USER_NOT_EXIST);
+        const answerResult = await diaryDao.checkAnswerExists(connection, answerIdx);
+        if (answerResult.length<1) return errResponse(baseResponse.ANSWER_ANSWERIDX_NOT_EXIST);
+        // 수정할 수 있는 유저인지 확인
+        // const answeruser = await diaryDao.checkAnswerUser(connection, answerIdx, userIdx);
+        // if (answeruser.length<1) return errResponse(baseResponse.DIARY_USER_INVALID);
+
+        const updateAnswerParams = ["T", answerIdx];
+        const updateAnswerResult = await diaryDao.updateAnswerReject(connection, updateAnswerParams);
+
+        connection.release();
+        return response(baseResponse.SUCCESS);
+
+    } catch (err) {
+        logger.error(`App - updateAnswerReject Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
+
 exports.createAnswer = async function (userIdx, diaryIdx, content) {
     try {
 
