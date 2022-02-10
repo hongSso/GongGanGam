@@ -120,6 +120,28 @@ async function selectDiaryDetail(connection, diaryIdx) {
     return diaryInfo;
 }
 
+// 받은 답장 페이지에 다이어리 내용 가져오기(수정함)
+async function selectDiaryByAnswerIdx(connection, answerIdx) {
+    const selectDiaryQuery = `
+        select Diary.diaryIdx, emoji, date_format(diaryDate, '%Y년 %c월 %e일') as diaryDate, contents as diaryContent
+        from Diary join Answer on Answer.diaryIdx = Diary.diaryIdx
+        where answerIdx = ?;
+                `;
+    const [diaryInfo] = await connection.query(selectDiaryQuery, answerIdx);
+    return diaryInfo;
+}
+
+// 받은 답장 가져오기(수정함)
+async function selectAnswerByIdx(connection, params) {
+    const selectDeliveryQuery = `
+        select answerIdx, answerUserIdx, profImg, nickname,
+               date_format(Answer.updatedAt, '%Y년 %c월 %e일') as answerDate, answerContents, Answer.isReject
+        from Answer join User on answerUserIdx = User.userIdx
+        where answerIdx = ? and answerUserIdx=? and Answer.status='ACTIVE';
+                `;
+    const [diaryInfo] = await connection.query(selectDeliveryQuery, params);
+    return diaryInfo;
+}
 
 // 랜덤의 유저 가져오기
 async function selectRandUser(connection, userIdx) {
@@ -265,10 +287,22 @@ async function checkShareAgree(connection, diaryIdx) {
     return diaryInfo;
 }
 
+// 답장 확인
+async function checkAnswerExists(connection, answerIdx) {
+    const selectShareAgreeQuery = `
+        select answerIdx, answerUserIdx
+        from Answer
+        where answerIdx=?;
+                `;
+    const [diaryInfo] = await connection.query(selectShareAgreeQuery, answerIdx);
+    return diaryInfo;
+}
+
 module.exports = {
     selectMonthDiary, selectDiary, selectDiaryAnswer, selectShareList, selectShareDiary,
     insertDiary, updateDiaryStatus, checkUserExists, checkDiaryExists, selectAnswer,
     selectDiaryDetail, selectAnswerDetail, insertAnswer, selectRandUser, updateDiary,
     insertShare, insertDiaryImg, selectAllShareList, selectAllAnswer, updateDiaryReadStatus,
-    checkDiaryShareUser, checkShareAgree
+    checkDiaryShareUser, checkShareAgree, checkAnswerExists, selectDiaryByAnswerIdx,
+    selectAnswerByIdx
 };
