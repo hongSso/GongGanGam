@@ -82,7 +82,8 @@ exports.loginNaver = async function (req, res) {
                         if (myInfo.response.gender) gender = myInfo.response.gender;
                         if (myInfo.response.birthYear) birthYear = myInfo.response.birthYear;
 
-                        const result = {'nickname' : nickname, 'gender' : gender, 'birthYear' : birthYear}
+                        const result = {'nickname' : nickname, 'birthYear' : birthYear, 'gender' : gender, 'type' : 'naver',
+                            'email' : email, 'identification' : identification}
 
                         return res.json({
                             isSuccess: false,
