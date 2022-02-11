@@ -23,17 +23,17 @@ exports.getNotice = async function (req, res) {
 
     if (offset<0) return res.send(errResponse(baseResponse.PAGE_INVALID));
 
-    const notices = await adminProvider.retrieveNotice();
+    const allnotices = await adminProvider.retrieveAllNotice();
 
-    //if (shareDiary.length < offset) return res.send(errResponse(baseResponse.PAGE_INVALID_END));
-    //const totalPage = Math.ceil(shareDiary.length/pageSize);
-    //console.log('totalPage: ' + totalPage);
+    if (allnotices.length < offset) return res.send(errResponse(baseResponse.PAGE_INVALID_END));
+    const totalPage = Math.ceil(allnotices.length/pageSize);
+    console.log('totalPage: ' + totalPage);
 
+    const noticeResult = await adminProvider.retrieveNotice(pageSize, offset);
 
-    // const sharedDiaryResult = await diaryProvider.retrieveSharedDiaryList(userIdx, pageSize, offset);
-    //
-    // const pageInfo = {"curPage" : parseInt(page), "totalPage" : totalPage, "pageSize" : pageSize};
-    // const result = {"page" : pageInfo, "diarys":sharedDiaryResult};
-    return res.send(response(baseResponse.SUCCESS, notices));
+    const pageInfo = {"curPage" : parseInt(page), "totalPage" : totalPage, "pageSize" : pageSize};
+    const result = {"page" : pageInfo, "notices":noticeResult};
+
+    return res.send(response(baseResponse.SUCCESS, result));
 
 };

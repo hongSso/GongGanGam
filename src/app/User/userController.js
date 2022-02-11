@@ -8,6 +8,7 @@ const regexEmail = require("regex-email");
 const s3Client = require("../../../config/s3");
 const naver = require("../../../config/naver");
 const kakao = require("../../../config/kakao");
+
 const AWS = require('aws-sdk');
 
 /**
@@ -119,6 +120,7 @@ exports.loginKakao = async function (req, res) {
     }
 });
 }
+
 
 /**
  * API No. 2

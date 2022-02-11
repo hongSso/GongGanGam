@@ -97,8 +97,27 @@ exports.retrieveAnswer = async function (diaryIdx, userIdx) {
     } finally {
         connection.release();
     }
+};
 
+exports.retrieveAnswerByIdx = async function (answerIdx, userIdx) {
+    const connection = await pool.getConnection(async (conn) => conn);
 
+    try {
+        await connection.beginTransaction();
+
+        const diary = await diaryDao.selectDiaryByAnswerIdx(connection, answerIdx);
+        const params = [answerIdx, userIdx];
+        const answer = await diaryDao.selectAnswerByIdx(connection, params);
+        const result = {'diary' : diary[0], 'answer' : answer[0]};
+
+        await connection.commit();
+        return result;
+    } catch (err) {
+        console.log(err);
+        await connection.rollback();
+    } finally {
+        connection.release();
+    }
 };
 
 exports.checkUser = async function (userIdx) {
@@ -127,4 +146,13 @@ exports.checkDiaryShareUser = async function (diaryIdx, userIdx) {
     connection.release();
 
     return diary;
+};
+
+exports.checkAnswer = async function (answerIdx) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const answer = await diaryDao.checkAnswerExists(connection, answerIdx);
+
+    connection.release();
+
+    return answer;
 };

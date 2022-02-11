@@ -155,8 +155,26 @@ exports.updateDiary = async function (diaryIdx, userIdx, date, emoji, content, s
         // 삭제할 권한 있는 사용자인지 확인
         if (diaryResult[0].userIdx !== userIdx) return errResponse(baseResponse.DIARY_USER_INVALID);
 
-        const insertDiaryParams = [date, emoji, content, shareAgree, 'ACTIVE', diaryIdx];
+        // 이미 공유했으면 공유 수정은 안됨.
+        const shareAgreeResult = await diaryDao.checkShareAgree(connection, diaryIdx);
+        console.log(shareAgreeResult[0].shareAgree)
 
+        if (shareAgreeResult[0].shareAgree == 'T') {
+            if (shareAgree == 'F') return errResponse(baseResponse.DIARY_UPDATE_SHARE_INVALID);
+        } else {
+            if (shareAgree == 'T') {
+                // 공유하기
+                // 랜덤의 유저 가져오기
+                const randUser = await diaryDao.selectRandUser(connection, userIdx);
+                console.log(randUser[0].userIdx);
+                const randUserIdx = randUser[0].userIdx;
+
+                const shareParams = [diaryIdx, randUserIdx];
+                const shareResult = await diaryDao.insertShare(connection, shareParams);
+            }
+        }
+
+        const insertDiaryParams = [date, emoji, content, shareAgree, 'ACTIVE', diaryIdx];
         const updateDiaryResult = await diaryDao.updateDiary(connection, insertDiaryParams);
 
         connection.release();
@@ -164,6 +182,32 @@ exports.updateDiary = async function (diaryIdx, userIdx, date, emoji, content, s
 
     } catch (err) {
         logger.error(`App - updateDiaryStatus Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
+
+exports.updateAnswerReject = async function (userIdx, answerIdx) {
+    try {
+
+        const connection = await pool.getConnection(async (conn) => conn);
+
+        // 존재하는 사용자, 다이어리인지 확인
+        const userResult = await diaryDao.checkUserExists(connection, userIdx);
+        if (userResult.length<1) return errResponse(baseResponse.USER_NOT_EXIST);
+        const answerResult = await diaryDao.checkAnswerExists(connection, answerIdx);
+        if (answerResult.length<1) return errResponse(baseResponse.ANSWER_ANSWERIDX_NOT_EXIST);
+        // 수정할 수 있는 유저인지 확인
+        // const answeruser = await diaryDao.checkAnswerUser(connection, answerIdx, userIdx);
+        // if (answeruser.length<1) return errResponse(baseResponse.DIARY_USER_INVALID);
+
+        const updateAnswerParams = ["T", answerIdx];
+        const updateAnswerResult = await diaryDao.updateAnswerReject(connection, updateAnswerParams);
+
+        connection.release();
+        return response(baseResponse.SUCCESS);
+
+    } catch (err) {
+        logger.error(`App - updateAnswerReject Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
 };

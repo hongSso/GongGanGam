@@ -102,6 +102,7 @@ async function selectUserCheckIden(connection, identification) {
   return userRow;
 }
 
+
 async function selectUserCheckIdenTypeKaKao(connection, identification) {
   const params = [identification, 'kakao']
   const selectUserQuery = `
@@ -264,3 +265,4 @@ module.exports = {
   selectUserStatusByIden,
   selectUserCheckIdenTypeKaKao,
 };
+
