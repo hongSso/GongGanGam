@@ -73,6 +73,10 @@ module.exports = {
     DIARY_UPDATE_SHARE_INVALID : { "isSuccess": false, "code": 5022, "message": "이미 공유한 다이어리는 공유를 수정할 수 없습니다."},
     DIARY_SHAREAGREE_INVALID : { "isSuccess": false, "code": 5023, "message": "공유 설정이 잘못되었습니다."},
     ANSWER_ANSWERIDX_NOT_EXIST : { "isSuccess": false, "code": 5024, "message": "존재하지 않는 답장입니다."},
+    LOGIN_NAVER_IDENTIFICATION_ERROR : { "isSuccess": false, "code": 5025, "message": "식별번호에 문제가 있습니다."},
+    LOGIN_NAVER_TOKEN_ERROR : { "isSuccess": false, "code": 5026, "message": "토큰번호에 문제가 있습니다."},
+    LOGIN_NAVER_ERROR : { "isSuccess": false, "code": 5027, "message": "네이버 로그인에 실패하였습니다."},
+    // 5028 로그인 실패 회원가입해주세요
 
     // 6000번 소연
     USER_BIRTHYEAR_EMPTY : {"isSuccess": false, "code": 6000, "message": "출생년도 값을 입력해주세요."},

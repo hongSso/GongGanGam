@@ -33,6 +33,14 @@ exports.userIdCheck = async function (userIdx) {
   return idCheckResult;
 };
 
+exports.accountStatusCheck = async function (identification) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const userAccountResult = await userDao.selectUserStatusByIden(connection, identification);
+  connection.release();
+
+  return userAccountResult;
+};
+
 exports.accountCheck = async function (email) {
   const connection = await pool.getConnection(async (conn) => conn);
   const userAccountResult = await userDao.selectUserAccount(connection, email);
@@ -50,7 +58,23 @@ exports.checkUserExist = async function (email, identification) {
   return userCheckResult;
 };
 
+exports.checkUserExistByIden = async function (identification) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const userCheckResult = await userDao.selectUserCheckIden(connection, identification);
+  connection.release();
 
+
+  return userCheckResult;
+};
+
+exports.checkUserExistByIdenType = async function (identification) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const userCheckResult = await userDao.selectUserCheckIdenType(connection, identification);
+  connection.release();
+
+
+  return userCheckResult;
+};
 
 exports.userEmailCheck = async function (email) {
   const connection = await pool.getConnection(async (conn) => conn);

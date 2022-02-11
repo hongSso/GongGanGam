@@ -59,55 +59,60 @@ exports.loginNaver = async function (req, res) {
             };
             request2.get(options, async function (error, response, body) {
                 if (!error && response.statusCode == 200) {
-                    // res.writeHead(200, {'Content-Type': 'text/json;charset=utf-8'});
-                    // res.end(body);
                     console.log('success me');
                     const myInfo = JSON.parse(body);
                     console.log(myInfo.response)
-                    //const userName = myInfo.response.name;
                     const email = myInfo.response.email;
                     const identification = myInfo.response.id;
                     console.log(email);
                     console.log('id: ' + identification)
 
+                    const iden = 23893;
                     // DB에 유저 있는지 확인 후, 없으면 로그인 처리
-                    const userByIden = await userProvider.checkUserExistByIden(identification);
-                    // 없으면 fail 넘기면서 네이버에서 받아온 정보 리턴.
-                    // DB에 해당 유저가 없으면 회원가입, 있으면 로그인만(jwt)
-                    // const userIdxByName = await userProvider.checkUserByName(userName);
-                    // console.log(userIdxByName)
-                    // // 유저 업으니까 회원가입
-                    // if (userIdxByName[0].length <1) {
-                    //     console.log('no user')
-                    //     const signinNaver = await userService.createNaver(userName, email, "naverlogin");
-                    //     console.log(signinNaver)
-                    //     return res.send(signinNaver);
-                    // }
-                    // else {
-                    //     console.log('user')
-                    //     console.log(userName)
-                    //     const signInJWT = await userService.loginNaver(userName, email);
-                    //
-                    //     return res.send(signInJWT);
-                    // }
+                    const userByIden = await userProvider.checkUserExistByIden(iden);
+                    console.log(userByIden)
+                    if (userByIden.length>0) {
+                        const signInResponse = await userService.postNaverLogin(iden);
+                        return res.send(signInResponse);
+                    }
+                    // 회원가입하게 받은 정보 리턴해주기.
+                    else {
+                        let nickname='', birthYear='', gender='';
+                        if (myInfo.response.name) nickname = myInfo.response.name;
+                        if (myInfo.response.gender) gender = myInfo.response.gender;
+                        if (myInfo.response.birthYear) birthYear = myInfo.response.birthYear;
+
+                        const result = {'nickname' : nickname, 'gender' : gender, 'birthYear' : birthYear}
+
+                        return res.json({
+                            isSuccess: false,
+                            code     : 5028,
+                            message  : "로그인 실패. 회원가입해주세요",
+                            result   : result
+                        });
+                    }
 
                 } else {
                     console.log('error');
                     if(response != null) {
-                        res.status(response.statusCode).end();
+                        //res.status(response.statusCode).end();
                         console.log('me error = ' + response.statusCode);
+                        return res.send(response(baseResponse.LOGIN_NAVER_TOKEN_ERROR));
                     }
+                    return res.send(response(baseResponse.LOGIN_NAVER_ERROR));
                 }
             });
         } else {
-            res.status(response.statusCode).end();
             console.log('token error = ' + response.statusCode);
+            return res.send(response(baseResponse.LOGIN_NAVER_TOKEN_ERROR));
+            //res.status(response.statusCode).end();
+
         }
     });
 
     //const signInResponse = await userService.postSignIn(email, identification);
 
-    return res.send(response(baseResponse.SUCCESS));
+    //return res.send(response(baseResponse.SUCCESS));
     //return res.send(signInResponse);
 }
 
