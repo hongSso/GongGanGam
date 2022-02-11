@@ -90,6 +90,41 @@ async function selectUserCheck(connection, email, identification) {
   return userRow;
 }
 
+// 식별값으로 사용자 존재하는지 확인
+async function selectUserCheckIden(connection, identification) {
+
+  const selectUserQuery = `
+    select userIdx, identification
+    from User
+    where identification = ?;
+                 `;
+  const [userRow] = await connection.query(selectUserQuery, identification);
+  return userRow;
+}
+
+async function selectUserCheckIdenTypeKaKao(connection, identification) {
+  const params = [identification, 'kakao']
+  const selectUserQuery = `
+    select userIdx, identification
+    from User
+    where identification = ? and type = ?;
+                 `;
+  const [userRow] = await connection.query(selectUserQuery, params);
+  return userRow;
+}
+
+// 식별값으로 사용자 존재하는지 확인
+async function selectUserCheckIdenType(connection, identification) {
+  const params = [identification, 'naver']
+  const selectUserQuery = `
+    select userIdx, identification
+    from User
+    where identification = ? and type = ?;
+                 `;
+  const [userRow] = await connection.query(selectUserQuery, params);
+  return userRow;
+}
+
 // userIdx로 사용자가 존재하는지 확인
 async function checkUserByIdx(connection, userIdx) {
   const selectUserQuery = `
@@ -127,7 +162,18 @@ async function selectUserAccount(connection, email) {
   return selectUserAccountRow[0];
 }
 
-
+// 유저 계정 상태 체크 (jwt 생성 위해 nickname 값도 가져온다.)
+async function selectUserStatusByIden(connection, identification) {
+  const selectUserAccountQuery = `
+        SELECT status, nickname, userIdx
+        FROM User
+        WHERE identification = ?;`;
+  const selectUserAccountRow = await connection.query(
+      selectUserAccountQuery,
+      identification
+  );
+  return selectUserAccountRow[0];
+}
 
 async function updateUserInfo(connection,nickname, birthYear, gender, setAge, userIdx) {
   const updateUserQuery = `
@@ -212,5 +258,9 @@ module.exports = {
   selectUserAccount,
   checkUserByIdx,
   checkUserByName,
-  updateUserImg
+  updateUserImg,
+  selectUserCheckIden,
+  selectUserCheckIdenType,
+  selectUserStatusByIden,
+  selectUserCheckIdenTypeKaKao,
 };

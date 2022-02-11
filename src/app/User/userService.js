@@ -1,3 +1,4 @@
+
 const {logger} = require("../../../config/winston");
 const {pool} = require("../../../config/database");
 const secret_config = require("../../../config/secret");
@@ -55,6 +56,69 @@ exports.postSignIn = async function (email, identification) {
     }
 };
 
+exports.postKaKaoLogin = async function (identification) {
+    try {
+        //??식별번호 확인이 필요할까용..?
+
+        // 계정 상태 확인
+        const userInfoRows = await userProvider.accountStatusCheck(identification); //status, nickname
+
+        if (userInfoRows[0].status === "INACTIVE") return errResponse(baseResponse.SIGNIN_INACTIVE_ACCOUNT);
+        console.log(userInfoRows[0].nickname);
+
+        //토큰 생성 Service
+        let token = await jwt.sign(
+            {
+                userIdx: userInfoRows[0].userIdx,
+            }, // 토큰의 내용(payload)
+            secret_config.jwtsecret, // 비밀키
+            {
+                expiresIn: "365d",
+                subject: "userInfo",
+            } // 유효 기간 365일
+        );
+
+        return response(baseResponse.SUCCESS, {'userIdx': userInfoRows[0].userIdx, 'userName': userInfoRows[0].nickname, 'jwt': token});
+
+    }
+    catch (err) {
+        logger.error(`App - postKakaoLogin Service error\n: ${err.message} \n${JSON.stringify(err)}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
+
+exports.postNaverLogin = async function (identification) {
+    try {
+        // 식별번호 확인
+        const identificationRows = await userProvider.checkUserExistByIdenType(identification);
+        if (identification.length<1) return errResponse(baseResponse.LOGIN_NAVER_IDENTIFICATION_ERROR);
+
+        // 계정 상태 확인
+        const userInfoRows = await userProvider.accountStatusCheck(identification); //status, nickname
+
+        if (userInfoRows[0].status === "INACTIVE") return errResponse(baseResponse.SIGNIN_INACTIVE_ACCOUNT);
+        console.log(userInfoRows[0].nickname);
+
+        //토큰 생성 Service
+        let token = await jwt.sign(
+            {
+                userIdx: userInfoRows[0].userIdx,
+            }, // 토큰의 내용(payload)
+            secret_config.jwtsecret, // 비밀키
+            {
+                expiresIn: "365d",
+                subject: "userInfo",
+            } // 유효 기간 365일
+        );
+
+        return response(baseResponse.SUCCESS, {'userIdx': userInfoRows[0].userIdx, 'userName': userInfoRows[0].nickname, 'jwt': token});
+
+    }
+    catch (err) {
+        logger.error(`App - postNaverLogin Service error\n: ${err.message} \n${JSON.stringify(err)}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
 
 
 //04. 유저 생성
@@ -72,11 +136,10 @@ exports.createUser = async function (nickname, birthYear, gender, type, email, i
         if (userEmailRows.length > 0)
             return errResponse(baseResponse.SIGNUP_EMAIL_EXISTS);
 
-        // 비밀번호 암호화
-        // const hashedPassword = await crypto
-        //     .createHash("sha512")
-        //     .update(identification)
-        //     .digest("hex");
+        const hashedIdetification = await crypto
+            .createHash("sha512")
+            .update(identification)
+            .digest("hex");
         try {
             const insertUserInfoParams = [nickname, birthYear, gender, type, email, identification];
             await connection.beginTransaction();

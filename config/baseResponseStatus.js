@@ -66,11 +66,17 @@ module.exports = {
     USER_IDENTIFICATION_EMPTY : { "isSuccess": false, "code": 5015, "message": "인증 번호를 입력해주세요."},
     SIGNUP_ERROR : { "isSuccess": false, "code": 5016, "message": "회원가입에 실패하였습니다. 다시 시도해주세요."},
     SIGNUP_EMAIL_EXISTS : { "isSuccess": false, "code": 5017, "message": "존재하는 이메일입니다."},
-    SIGNUP_USER_EXISTS : { "isSuccess": false, "code": 5018, "message": "존재하는 사용자입니다. 로그인해주세요."},git
+    SIGNUP_USER_EXISTS : { "isSuccess": false, "code": 5018, "message": "존재하는 사용자입니다. 로그인해주세요."},
     DIARYSHARE_USER_INVALID : { "isSuccess": false, "code": 5019, "message": "조회할 수 없는 다이어리입니다."},
     USER_TYPE_EMPTY : { "isSuccess": false, "code": 5020, "message": "회원가입한 타입을 입력해주세요."},
     USER_PROFIMG_EMPTY : { "isSuccess": false, "code": 5021, "message": "수정할 이미지가 없습니다."},
-
+    DIARY_UPDATE_SHARE_INVALID : { "isSuccess": false, "code": 5022, "message": "이미 공유한 다이어리는 공유를 수정할 수 없습니다."},
+    DIARY_SHAREAGREE_INVALID : { "isSuccess": false, "code": 5023, "message": "공유 설정이 잘못되었습니다."},
+    ANSWER_ANSWERIDX_NOT_EXIST : { "isSuccess": false, "code": 5024, "message": "존재하지 않는 답장입니다."},
+    LOGIN_NAVER_IDENTIFICATION_ERROR : { "isSuccess": false, "code": 5025, "message": "식별번호에 문제가 있습니다."},
+    LOGIN_NAVER_TOKEN_ERROR : { "isSuccess": false, "code": 5026, "message": "토큰번호에 문제가 있습니다."},
+    LOGIN_NAVER_ERROR : { "isSuccess": false, "code": 5027, "message": "네이버 로그인에 실패하였습니다."},
+    // 5028 로그인 실패 회원가입해주세요
 
     // 6000번 소연
     USER_BIRTHYEAR_EMPTY : {"isSuccess": false, "code": 6000, "message": "출생년도 값을 입력해주세요."},
@@ -89,6 +95,6 @@ module.exports = {
     USER_BIRTHYEAR_NUMBER_WRONG : {"isSuccess": false, "code": 6013, "message": "출생년도는 4자리를 입력해주세요"},
     USER_BIRTHYEAR_TIME_WRONG : {"isSuccess": false, "code": 6014, "message": "출생년도가 올바르지 않습니다."},
     USER_SETAGE_EMPTY : {"isSuccess": false, "code": 6015, "message": "연령대 지정 값을 입력해주세요."},
-
+    LOGIN_KAKAO_TOKEN_ERROR : { "isSuccess": false, "code": 6016, "message": "카카오 토큰번호에 문제가 있습니다."},
+    LOGIN_KAKAO_ERROR : { "isSuccess": false, "code": 6017, "message": "카카오 로그인에 실패하였습니다."},
 }
-
