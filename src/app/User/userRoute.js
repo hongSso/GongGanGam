@@ -6,6 +6,9 @@ module.exports = function(app){
     // 0. 테스트 API
     app.get('/app/test', user.getTest);
 
+    // 2. 네이버 로그인 API
+    app.get('/app/users/login/naver', user.loginNaver);
+
     // 3. 로그인 API
     app.post('/app/users/login', user.login);
 
