@@ -1,3 +1,4 @@
+
 // 유저 생성
 //const {USER_STATUS_EMPTY} = require("./baseResponseStatus");
 
@@ -183,6 +184,16 @@ async function updateChatPush(connection, userIdx, chatPush){
   return updateChatPushRow[0];
 }
 
+async function updateUserImg(connection, userIdx, imgUrl){
+  const params = [imgUrl, userIdx];
+  const updateUserImgQuery = `
+    UPDATE User
+    SET profImg = ?
+    WHERE userIdx = ?;`;
+  const updateUserImgRow = await connection.query(updateUserImgQuery,params);
+  return updateUserImgRow[0];
+}
+
 module.exports = {
   selectUser,
   selectUserNickname,
@@ -200,5 +211,6 @@ module.exports = {
   selectUserIdentification,
   selectUserAccount,
   checkUserByIdx,
-  checkUserByName
+  checkUserByName,
+  updateUserImg
 };

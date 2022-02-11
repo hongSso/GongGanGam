@@ -66,9 +66,10 @@ module.exports = {
     USER_IDENTIFICATION_EMPTY : { "isSuccess": false, "code": 5015, "message": "인증 번호를 입력해주세요."},
     SIGNUP_ERROR : { "isSuccess": false, "code": 5016, "message": "회원가입에 실패하였습니다. 다시 시도해주세요."},
     SIGNUP_EMAIL_EXISTS : { "isSuccess": false, "code": 5017, "message": "존재하는 이메일입니다."},
-    SIGNUP_USER_EXISTS : { "isSuccess": false, "code": 5018, "message": "존재하는 사용자입니다. 로그인해주세요."},
+    SIGNUP_USER_EXISTS : { "isSuccess": false, "code": 5018, "message": "존재하는 사용자입니다. 로그인해주세요."},git
     DIARYSHARE_USER_INVALID : { "isSuccess": false, "code": 5019, "message": "조회할 수 없는 다이어리입니다."},
     USER_TYPE_EMPTY : { "isSuccess": false, "code": 5020, "message": "회원가입한 타입을 입력해주세요."},
+    USER_PROFIMG_EMPTY : { "isSuccess": false, "code": 5021, "message": "수정할 이미지가 없습니다."},
 
 
     // 6000번 소연
@@ -88,4 +89,6 @@ module.exports = {
     USER_BIRTHYEAR_NUMBER_WRONG : {"isSuccess": false, "code": 6013, "message": "출생년도는 4자리를 입력해주세요"},
     USER_BIRTHYEAR_TIME_WRONG : {"isSuccess": false, "code": 6014, "message": "출생년도가 올바르지 않습니다."},
     USER_SETAGE_EMPTY : {"isSuccess": false, "code": 6015, "message": "연령대 지정 값을 입력해주세요."},
+
 }
+

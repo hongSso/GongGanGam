@@ -5,6 +5,8 @@ const baseResponse = require("../../../config/baseResponseStatus");
 const {response, errResponse} = require("../../../config/response");
 const yearNow = require("date-utils");
 const regexEmail = require("regex-email");
+const s3Client = require("../../../config/s3");
+const AWS = require('aws-sdk');
 
 /**
  * API No. 0
@@ -18,7 +20,7 @@ exports.getTest = async function (req, res) {
 /**
  * API No. 3
  * API Name : 로그인 API
- * [POST] /app/login
+ * [POST] /app/users/login
  * body : email, identification
  */
 exports.login = async function (req, res) {
@@ -35,7 +37,7 @@ exports.login = async function (req, res) {
  * API No. 4
  * API Name : 유저 생성 (회원가입) API
  * [POST] /app/users
- *body: nickname, birthYear, gender
+ *body: nickname, birthYear, gender, type, email, identification
  */
 exports.postUsers = async function (req, res) {
 
@@ -44,7 +46,10 @@ exports.postUsers = async function (req, res) {
     // 빈 값 체크
     if (!email) return res.send(response(baseResponse.USER_EMAIL_EMPTY));
     if (!identification) return res.send(response(baseResponse.USER_IDENTIFICATION_EMPTY));
-    if (!nickname) return res.send(response(baseResponse.USER_NICKNAME_EMPTY));
+    if (!nickname) return res.send(response(baseResponse.SIGNIN_USER_NICKNAME_EMPTY));
+    if (!birthYear) return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
+    if (!gender) return res.send(response(baseResponse.USER_GENDER_EMPTY));
+    if (!type) return res.send(response(baseResponse.USER_TYPE_EMPTY));
 
     //길이 체크
     if (nickname.length > 20) return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
@@ -86,28 +91,27 @@ exports.patchUsers = async function (req, res) {
 
     const userIdx = req.params.userIdx;
     const {nickname, birthYear, gender, setAge} = req.body;
-    var today = new Date();
-    if (userIdFromJWT != userIdx) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
-    } else {
-        // 빈 값 체크
-        if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
-        if (nickname.length > 20) return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
-        if (!birthYear) return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
-        if (!gender) return res.send(response(baseResponse.USER_GENDER_EMPTY));
-        if (!setAge) return res.send(response(baseResponse.USER_SETAGE_EMPTY));
+    const today = new Date();
+    console.log(userIdx)
+    console.log(userIdFromJWT)
+    if (userIdFromJWT != userIdx) return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
 
-        //1900~2022까지만 유저 생성되게 하고 싶은데,, 왜 안되지,,,
-        // if (birthYear <= 1900 && birthYear >= today.getFullYear()) return res.send(errResponse(baseResponse.USER_BIRTHYEAR_TIME_WRONG));
-        if (!(gender == 'M' || gender == 'F' || gender == 'N')) return res.send(errResponse(baseResponse.USER_GENDER_WRONG));
-        if (!(setAge == 'T' || setAge == 'F')) return res.send(errResponse(baseResponse.USER_SETAGE_WRONG));
+    // 빈 값 체크
+    if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
+    if (nickname.length > 20) return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
+    if (!birthYear) return res.send(response(baseResponse.USER_BIRTHYEAR_EMPTY));
+    if (!gender) return res.send(response(baseResponse.USER_GENDER_EMPTY));
+    if (!setAge) return res.send(response(baseResponse.USER_SETAGE_EMPTY));
 
+    //1900~올해까지만 유저 생성
+    let year = Number(birthYear);
+    if (year <= 1900 || year >= today.getFullYear()) return res.send(errResponse(baseResponse.USER_BIRTHYEAR_TIME_WRONG));
+    if (!(gender === 'M' || gender === 'F' || gender === 'N')) return res.send(errResponse(baseResponse.USER_GENDER_WRONG));
+    if (!(setAge === 'T' || setAge === 'F')) return res.send(errResponse(baseResponse.USER_SETAGE_WRONG));
 
+    const editUserInfo = await userService.editUser(nickname, birthYear, gender, setAge, userIdx);
+    return res.send(editUserInfo);
 
-
-        const editUserInfo = await userService.editUser(nickname, birthYear, gender, setAge, userIdx);
-        return res.send(editUserInfo);
-    }
 };
 
 
@@ -137,7 +141,6 @@ exports.getUserById = async function (req, res) {
  * API Name : 탈퇴하기 API
  * [PATCH] /app/users/:userIdx/status
  * Path Variable : userIdx, status
- * body : status
  */
 exports.patchUsersStatus = async function (req, res) {
 
@@ -148,7 +151,6 @@ exports.patchUsersStatus = async function (req, res) {
     if (userIdFromJWT != userIdx) {
         res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     } else {
-        if (!status) return res.send(errResponse(baseResponse.USER_STATUS_EMPTY));
         const editUserStatus = await userService.editUserStatus(userIdx);
         return res.send(editUserStatus);
     }
@@ -232,3 +234,59 @@ exports.patchPushChat = async function (req, res) {
 
 };
 
+/**
+ * API No. 25
+ * API Name : 유저 프로필 사진 업로드(수정) API
+ * [PATCH] /app/users/:userIdx/profile
+ */
+exports.patchProfImg = async function (req, res) {
+
+    //const userIdx = 1;
+    const userIdx = req.params.userIdx;
+    const userIdFromJWT = req.verifiedToken.userIdx;
+
+    console.log('userIdx: ' + userIdx)
+    if (userIdFromJWT != userIdx) res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+
+    const file = req.files;
+    console.log(file);
+
+
+    if (!req.files) {
+        console.log('no file');
+        return res.send(errResponse(baseResponse.USER_PROFIMG_EMPTY));
+    }
+    // 파일 잇는 경우
+    else {
+        const img = req.files.profImg;
+        console.log(img)
+        let bucketName = 'gonggangam-bucket'
+
+        const s3 = new AWS.S3({
+            accessKeyId: s3Client.accessid,
+            secretAccessKey: s3Client.secret,
+            region: 'ap-northeast-2',
+            Bucket: bucketName
+        });
+
+        const params = {
+            Bucket: 'gonggangam-bucket',
+            Key: img.name,
+            Body: img.data
+        };
+        s3.upload(params, async function(err, data) {
+            if (err) {
+                //throw err;
+                console.log('error')
+                console.log(err)
+                return res.send(errResponse(baseResponse.DIARY_S3_ERROR));
+            } else {
+                console.log(`File uploaded successfully.`);
+                console.log(data.Location)
+                const updateResponse = await userService.updateUserImg(userIdx, data.Location);
+                return res.send(updateResponse);
+
+            }
+        });
+    }
+};

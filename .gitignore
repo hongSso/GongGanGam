@@ -5,3 +5,4 @@ log/*
 .DS_Store
 config/secret.js
 config/database.js
+config/s3.js

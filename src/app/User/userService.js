@@ -228,3 +228,24 @@ exports.editChatPush = async function (userIdx, chatPush) {
         return errResponse(baseResponse.DB_ERROR);
     }
 }
+
+//25. 유저 프로필 사진 업로드
+exports.updateUserImg = async function (userIdx, imgUrl) {
+    try {
+        const connection = await pool.getConnection(async (conn) => conn);
+
+        //회원 존재 확인
+        const userIdRows = await userProvider.userIdCheck(userIdx);
+        if (userIdRows.length < 1)
+            return errResponse(baseResponse.USER_USERID_NOT_EXIST);
+
+        const editUserImgResult = await userDao.updateUserImg(connection, userIdx, imgUrl);
+        connection.release();
+
+        return response(baseResponse.SUCCESS);
+
+    } catch (err) {
+        logger.error(`App - updateUserImg Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+}
