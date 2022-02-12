@@ -12,7 +12,7 @@ module.exports = function(app){
     app.get('/app/diarys/share/:diaryIdx', jwtMiddleware, diary.getSharedDiaryDetail);
 
     // 15. 받은 답장 조회 API
-    app.get('/app/diarys/answer/:diaryIdx',jwtMiddleware,  diary.getAnswer);
+    app.get('/app/diarys/answer/:answerIdx',jwtMiddleware,  diary.getAnswer);
 
     // 16. 나의 다이어리 조회(캘린더 - 이모티콘) API
     app.get('/app/diarys', jwtMiddleware, diary.getDiarys);
@@ -32,5 +32,7 @@ module.exports = function(app){
     // 21. 다이어리 수정하기 API
     app.patch('/app/diarys/:diaryIdx',jwtMiddleware,  diary.patchDiary);
 
+    // 26. 답장 거절하기 API
+    app.patch('/app/diarys/answer/:answerIdx',jwtMiddleware,  diary.patchAnswerReject);
 };
 

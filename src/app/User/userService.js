@@ -56,6 +56,7 @@ exports.postSignIn = async function (email, identification) {
     }
 };
 
+
 exports.postKaKaoLogin = async function (identification) {
     try {
         // 계정 상태 확인
@@ -84,6 +85,7 @@ exports.postKaKaoLogin = async function (identification) {
         return errResponse(baseResponse.DB_ERROR);
     }
 };
+
 
 exports.postNaverLogin = async function (identification) {
     try {
